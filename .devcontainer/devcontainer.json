@@ -4,7 +4,8 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "bierner.markdown-mermaid"
+                "bierner.markdown-mermaid",
+                "ritwickdey.LiveServer"
             ],
             "settings": {
                 "editor.formatOnSave": true
