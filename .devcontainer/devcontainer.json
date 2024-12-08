@@ -1,0 +1,15 @@
+{
+    "name": "caretaxtool",
+    "dockerFile": "Dockerfile",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bierner.markdown-mermaid"
+            ],
+            "settings": {
+                "editor.formatOnSave": true
+            }
+        }
+    },
+    "remoteUser": "user"
+}
