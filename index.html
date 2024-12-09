@@ -24,16 +24,31 @@
             </div>
         </div>
 
-        <!-- 画像アップロードエリア -->
-        <div class="upload-area" id="upload-area">
-            <div class="upload-content">
-                <p>ここに領収書画像をドラッグ＆ドロップ</p>
-                <p>または</p>
-                <input type="file" id="file-input" accept="image/*" multiple>
-                <label for="file-input" class="upload-button">ファイルを選択</label>
-                <button id="upload-button" class="button">アップロード</button>
+        <!-- 画像選択セクション -->
+        <section class="selection-section">
+            <h2>画像ファイルの選択</h2>
+            <div class="upload-area" id="upload-area">
+                <div class="upload-content">
+                    <p>ここに領収書画像をドラッグ＆ドロップ</p>
+                    <p>または</p>
+                    <input type="file" id="file-input" accept="image/*" multiple>
+                    <label for="file-input" class="upload-button">ファイルを選択</label>
+                </div>
             </div>
-        </div>
+
+            <!-- 画像表示エリア -->
+            <div class="images-section" id="images-section">
+                <div class="images-grid" id="images-grid"></div>
+            </div>
+        </section>
+
+        <!-- 処理開始セクション -->
+        <section class="process-section">
+            <h2>処理の開始</h2>
+            <div class="process-content">
+                <button id="upload-button" class="button primary">送信</button>
+            </div>
+        </section>
 
         <!-- 結果表示エリア -->
         <div class="result-section" id="result-section">
@@ -67,12 +82,6 @@
                 <button id="copy-button" class="copy-button">JSONをコピー</button>
                 <button id="copy-excel-button" class="copy-button">Excel用コピー</button>
             </div>
-        </div>
-
-        <!-- 画像表示エリア -->
-        <div class="images-section" id="images-section">
-            <h2>アップロードされた画像</h2>
-            <div class="images-grid" id="images-grid"></div>
         </div>
 
         <!-- エラー表示エリア -->

@@ -7,6 +7,7 @@ export class UI {
         this.processedFiles = new Map(); // 処理済みファイルを管理
         this.selectedFiles = new Map(); // 選択済みファイルを管理（fileId -> file）
         this.initializeEventListeners();
+        this.updateImagesDisplay(); // 初期表示を設定
         console.log('UI: 初期化完了');
     }
 
@@ -130,8 +131,15 @@ export class UI {
         console.log('UI: プレビュー表示開始');
         const previewGrid = document.getElementById('images-grid');
 
+        // 画像選択なしのメッセージをクリア
+        if (previewGrid.classList.contains('empty')) {
+            previewGrid.innerHTML = '';
+            previewGrid.classList.remove('empty');
+        }
+
         try {
             for (const { file, fileId } of files) {
+                console.log('UI: 画像処理 - Name:', file.name);
                 const dataUrl = await fileToDataUrl(file);
                 const previewContainer = document.createElement('div');
                 previewContainer.className = 'image-container preview';
@@ -151,8 +159,6 @@ export class UI {
                 previewContainer.appendChild(deleteButton);
                 previewGrid.appendChild(previewContainer);
             }
-
-            document.getElementById('images-section').style.display = 'block';
         } catch (error) {
             console.error('UI: プレビュー表示エラー:', error);
             showNotification('プレビューの表示中にエラーが発生しました', 'error');
@@ -164,9 +170,19 @@ export class UI {
         const previewGrid = document.getElementById('images-grid');
         const previews = previewGrid.querySelectorAll('.preview');
         previews.forEach(preview => preview.remove());
+        this.updateImagesDisplay();
+    }
 
-        if (previewGrid.children.length === 0) {
-            document.getElementById('images-section').style.display = 'none';
+    updateImagesDisplay() {
+        const imagesGrid = document.getElementById('images-grid');
+        const totalImages = this.selectedFiles.size + this.processedFiles.size;
+
+        if (totalImages === 0) {
+            // 既存の内容をクリア
+            imagesGrid.innerHTML = '<div>画像選択なし</div>';
+            imagesGrid.classList.add('empty');
+        } else {
+            imagesGrid.classList.remove('empty');
         }
     }
 
@@ -176,9 +192,7 @@ export class UI {
         this.selectedFiles.delete(fileId);
         previewContainer.remove();
 
-        if (document.getElementById('images-grid').children.length === 0) {
-            document.getElementById('images-section').style.display = 'none';
-        }
+        this.updateImagesDisplay();
 
         const message = `「${file.name}」の選択を解除しました`;
         showNotification(message, 'info');
@@ -442,9 +456,7 @@ export class UI {
         this.processedFiles.delete(fileId);
         imageContainer.remove();
 
-        if (document.getElementById('images-grid').children.length === 0) {
-            document.getElementById('images-section').style.display = 'none';
-        }
+        this.updateImagesDisplay();
 
         const message = `「${fileInfo.name}」を削除しました`;
         showNotification(message, 'info');

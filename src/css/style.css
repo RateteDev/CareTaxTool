@@ -244,7 +244,6 @@ body {
 /* 画像表示エリア */
 .images-section {
     margin-top: 20px;
-    display: none;
 }
 
 .images-grid {
@@ -252,6 +251,28 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     margin-top: 15px;
+    min-height: 150px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 20px;
+    border: 2px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.images-grid.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-style: dashed;
+    background: #fafafa;
+    color: #888;
+    font-size: 0.95em;
+}
+
+.images-grid.empty:hover {
+    background: #f5f5f5;
+    border-color: #ddd;
+    color: #666;
 }
 
 .image-container {
@@ -260,7 +281,7 @@ body {
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     aspect-ratio: 4/3;
-    background: #f5f5f5;
+    background: white;
 }
 
 .image-container img {
@@ -474,4 +495,68 @@ body {
 /* ツールチップ */
 .result-table td[title] {
     cursor: help;
+}
+
+/* セクション共通スタイル */
+section {
+    margin: 30px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+section h2 {
+    margin: 0 0 20px 0;
+    font-size: 1.4em;
+    color: #333;
+    font-weight: 600;
+}
+
+/* 画像選択セクション */
+.selection-section .upload-area {
+    margin-bottom: 20px;
+}
+
+/* 処理開始セクション */
+.process-section {
+    text-align: center;
+}
+
+.process-content {
+    padding: 20px 0;
+}
+
+/* プライマリーボタン */
+.button.primary {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 30px;
+    font-size: 1.1em;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.button.primary:hover {
+    background-color: #45a049;
+}
+
+/* 既存のスタイルを調整 */
+.images-section {
+    margin-top: 0;
+}
+
+.result-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.result-section h2 {
+    margin: 0 0 20px 0;
+    font-size: 1.4em;
+    color: #333;
+    font-weight: 600;
 }
