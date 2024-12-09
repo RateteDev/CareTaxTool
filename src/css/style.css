@@ -17,12 +17,9 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-    background: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* API Key入力セクション */
@@ -102,8 +99,8 @@ body {
 
 /* 結果表示エリア */
 .result-section {
-    margin-top: 20px;
-    padding: 20px;
+    margin: 20px -20px;
+    padding: 0 20px;
     background-color: #f8f8f8;
     border-radius: 4px;
 }
@@ -257,4 +254,175 @@ body {
 
 .button-group .copy-button {
     margin-top: 0;
+}
+
+/* 結果テーブル */
+.result-table-wrapper {
+    overflow-x: auto;
+    margin: 15px 0;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    max-width: 100%;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+/* 列幅の最適化 */
+.result-table th:nth-child(1),
+.result-table td:nth-child(1) {
+    width: 12%;
+    /* 氏名 */
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 1;
+}
+
+.result-table th:nth-child(2),
+.result-table td:nth-child(2) {
+    width: 25%;
+    /* 医療機関 */
+    position: sticky;
+    left: 12%;
+    background: white;
+    z-index: 1;
+}
+
+/* 区分の列幅 */
+.result-table th:nth-child(3),
+.result-table td:nth-child(3),
+.result-table th:nth-child(4),
+.result-table td:nth-child(4),
+.result-table th:nth-child(5),
+.result-table td:nth-child(5),
+.result-table th:nth-child(6),
+.result-table td:nth-child(6) {
+    min-width: 100px;
+    /* 区分の最小幅を固定 */
+    width: auto;
+    /* 幅を自動調整 */
+}
+
+.result-table th:nth-child(7),
+.result-table td:nth-child(7),
+.result-table th:nth-child(8),
+.result-table td:nth-child(8) {
+    width: 120px;
+    /* 金額 */
+    position: sticky;
+    right: 120px;
+    /* 日付の幅分 */
+    background: white;
+    z-index: 1;
+}
+
+.result-table th:nth-child(9),
+.result-table td:nth-child(9) {
+    width: 120px;
+    /* 日付 */
+    position: sticky;
+    right: 0;
+    background: white;
+    z-index: 1;
+}
+
+/* セルのスタイル */
+.result-table th,
+.result-table td {
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+/* スティッキーヘッダーの背景色を維持 */
+.result-table thead th {
+    background-color: #f5f5f5 !important;
+    z-index: 2;
+}
+
+/* チェックマークのスタイル */
+.check-mark {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.empty-mark {
+    color: #ddd;
+    font-size: 1em;
+}
+
+/* ヘッダーのスタイル */
+.result-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    font-size: 0.95em;
+    padding: 10px 6px;
+}
+
+.result-table .category-headers th {
+    background-color: #fafafa;
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* 金額のフォーマット */
+.amount {
+    font-family: 'Roboto Mono', monospace;
+    text-align: right !important;
+    padding-right: 12px !important;
+}
+
+/* スクロールバーのスタイル */
+.result-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.result-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.result-table-wrapper::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.result-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* スマートフォン向けのレスポンシブ対応 */
+@media screen and (max-width: 768px) {
+    .result-table {
+        font-size: 0.85em;
+    }
+
+    .result-table th,
+    .result-table td {
+        padding: 6px 4px;
+    }
+
+    /* スクロール可能なことを示すインジケータ */
+    .result-table-wrapper::after {
+        content: '←スクロール可能→';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8em;
+        color: #666;
+        white-space: nowrap;
+    }
+}
+
+/* ツールチップ */
+.result-table td[title] {
+    cursor: help;
 }

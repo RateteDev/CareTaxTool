@@ -40,7 +40,31 @@
         <!-- 結果表示エリア -->
         <div class="result-section" id="result-section">
             <h2>解析結果</h2>
-            <div class="result-content" id="result-content"></div>
+            <div class="result-table-wrapper">
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>氏名</th>
+                            <th>医療機関</th>
+                            <th colspan="4">区分</th>
+                            <th>支払額</th>
+                            <th>補填額</th>
+                            <th>日付</th>
+                        </tr>
+                        <tr class="category-headers">
+                            <th colspan="2"></th>
+                            <th>診察</th>
+                            <th>薬剤</th>
+                            <th>介護</th>
+                            <th>他</th>
+                            <th colspan="3"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-content">
+                        <!-- 結果がここに表示されます -->
+                    </tbody>
+                </table>
+            </div>
             <div class="button-group">
                 <button id="copy-button" class="copy-button">JSONをコピー</button>
                 <button id="copy-excel-button" class="copy-button">Excel用コピー</button>

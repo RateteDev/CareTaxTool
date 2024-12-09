@@ -1,7 +1,7 @@
 import { geminiApi } from './api.js';
 import { copyToClipboard, fileToDataUrl, showNotification } from './utils.js';
 
-class UI {
+export class UI {
     constructor() {
         console.log('UI: 初期化開始');
         this.uploadArea = document.getElementById('upload-area');
@@ -257,7 +257,106 @@ class UI {
     displayResult(result) {
         console.log('UI: 結果表示:', result);
         this.lastResult = result;  // 結果を保存
-        this.resultContent.textContent = JSON.stringify(result, null, 2);
+
+        // テーブル行を作成
+        const tr = document.createElement('tr');
+
+        // 受診者名
+        const tdRecipient = document.createElement('td');
+        tdRecipient.textContent = result.recipient;
+        tr.appendChild(tdRecipient);
+
+        // 医療機関名
+        const tdFacility = document.createElement('td');
+        tdFacility.textContent = result.facility;
+        tr.appendChild(tdFacility);
+
+        // 医療費区分
+        const categories = ['medical_exam', 'medicine', 'nursing_care', 'others'];
+        categories.forEach(category => {
+            const td = document.createElement('td');
+            if (result.category[category]) {
+                td.textContent = '該当する';
+                td.classList.add('check-mark');
+            } else {
+                td.textContent = '−';
+                td.classList.add('empty-mark');
+            }
+            tr.appendChild(td);
+        });
+
+        // 支払金額
+        const tdAmount = document.createElement('td');
+        tdAmount.textContent = result.amount.toLocaleString();
+        tr.appendChild(tdAmount);
+
+        // 補填金額（空欄）
+        const tdRefund = document.createElement('td');
+        tdRefund.textContent = '−';
+        tdRefund.classList.add('empty-mark');
+        tr.appendChild(tdRefund);
+
+        // 支払日
+        const tdDate = document.createElement('td');
+        tdDate.textContent = result.date || '−';
+        if (!result.date) {
+            tdDate.classList.add('empty-mark');
+        }
+        tr.appendChild(tdDate);
+
+        // 既存の結果をクリアして新しい行を追加
+        const tbody = document.getElementById('result-content');
+        tbody.innerHTML = '';
+        tbody.appendChild(tr);
+    }
+
+    displayResults(results) {
+        console.log('UI: 結果の表示開始');
+        const resultContent = document.getElementById('result-content');
+        resultContent.innerHTML = '';
+
+        results.forEach(data => {
+            const row = document.createElement('tr');
+
+            // 氏名
+            row.appendChild(this.createCell(data.recipient));
+
+            // 医療機関
+            row.appendChild(this.createCell(data.facility));
+
+            // 区分（チェックマーク）
+            row.appendChild(this.createCell(data.category.medical_exam ? '✓' : '−', data.category.medical_exam ? 'check-mark' : 'empty-mark'));
+            row.appendChild(this.createCell(data.category.medicine ? '✓' : '−', data.category.medicine ? 'check-mark' : 'empty-mark'));
+            row.appendChild(this.createCell(data.category.nursing_care ? '✓' : '−', data.category.nursing_care ? 'check-mark' : 'empty-mark'));
+            row.appendChild(this.createCell(data.category.others ? '✓' : '−', data.category.others ? 'check-mark' : 'empty-mark'));
+
+            // 支払額
+            row.appendChild(this.createCell(this.formatAmount(data.amount), 'amount'));
+
+            // 補填額
+            row.appendChild(this.createCell(data.refund ? this.formatAmount(data.refund) : '−', 'amount'));
+
+            // 日付
+            row.appendChild(this.createCell(data.date));
+
+            resultContent.appendChild(row);
+        });
+
+        document.getElementById('result-section').style.display = 'block';
+        console.log('UI: 結果の表示完了');
+    }
+
+    createCell(content, className = '') {
+        const cell = document.createElement('td');
+        cell.textContent = content;
+        if (className) {
+            cell.className = className;
+        }
+        return cell;
+    }
+
+    formatAmount(amount) {
+        return amount.toLocaleString() + '円';
     }
 }
 
