@@ -124,21 +124,87 @@ export class UI {
         });
 
         // JSONコピーボタンのイベントリスナー
-        document.getElementById('json-copy-button').addEventListener('click', function () {
+        const jsonCopyButton = document.getElementById('json-copy-button');
+        console.log('UI: JSONコピーボタン要素:', jsonCopyButton);
+
+        jsonCopyButton.addEventListener('click', () => {
+            console.log('UI: JSONコピーボタンがクリックされました');
             const resultContent = document.getElementById('result-content');
-            if (!resultContent.dataset.jsonData) {
+            const jsonData = resultContent.dataset.jsonData;
+
+            console.log('UI: コピーするJSONデータ:', jsonData);
+
+            if (!jsonData) {
+                console.warn('UI: コピーするデータがありません');
                 showNotification('コピーするデータがありません', 'error');
                 return;
             }
 
-            navigator.clipboard.writeText(resultContent.dataset.jsonData)
-                .then(() => {
-                    showNotification('JSONデータをクリップボードにコピーしました', 'success');
-                })
-                .catch(err => {
-                    console.error('クリップボードへのコピーに失敗しました:', err);
-                    showNotification('コピーに失敗しました', 'error');
+            try {
+                navigator.clipboard.writeText(jsonData)
+                    .then(() => {
+                        console.log('UI: クリップボードへのコピー成功');
+                        showNotification('JSONデータをクリップボードにコピーしました', 'success');
+                    })
+                    .catch(err => {
+                        console.error('UI: クリップボードへのコピー失敗:', err);
+                        showNotification('コピーに失敗しました', 'error');
+                    });
+            } catch (error) {
+                console.error('UI: クリップボード処理エラー:', error);
+                showNotification('コピー処理でエラーが発生しました', 'error');
+            }
+        });
+
+        // Excel用コピーボタンのイベントリスナー
+        const excelCopyButton = document.getElementById('copy-excel-button');
+        console.log('UI: Excel用コピーボタン要素:', excelCopyButton);
+
+        excelCopyButton.addEventListener('click', () => {
+            console.log('UI: Excel用コピーボタンがクリックされました');
+            const resultContent = document.getElementById('result-content');
+
+            if (!resultContent || !resultContent.dataset.jsonData) {
+                console.warn('UI: コピーするデータがありません');
+                showNotification('コピーするデータがありません', 'error');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(resultContent.dataset.jsonData);
+                console.log('UI: Excel用にフォーマットするデータ:', data);
+
+                // TSV形式に変換
+                const tsvRows = data.map(item => {
+                    return [
+                        item.recipient,
+                        item.facility,
+                        item.category.medical_exam ? '該当する' : '',
+                        item.category.medicine ? '該当する' : '',
+                        item.category.nursing_care ? '該当する' : '',
+                        item.category.others ? '該当する' : '',
+                        item.amount,
+                        item.refund || '',
+                        item.date || ''
+                    ].join('\t');
                 });
+
+                const tsvContent = tsvRows.join('\n');
+                console.log('UI: 生成されたTSV:', tsvContent);
+
+                navigator.clipboard.writeText(tsvContent)
+                    .then(() => {
+                        console.log('UI: Excel用データのコピー成功');
+                        showNotification('Excel用データをクリップボードにコピーしました', 'success');
+                    })
+                    .catch(err => {
+                        console.error('UI: Excel用データのコピー失敗:', err);
+                        showNotification('コピーに失敗しました', 'error');
+                    });
+            } catch (error) {
+                console.error('UI: Excel用データ処理エラー:', error);
+                showNotification('データの処理中にエラーが発生しました', 'error');
+            }
         });
     }
 
@@ -385,6 +451,11 @@ export class UI {
         console.log('UI: 結果表示開始');
         const resultContent = document.getElementById('result-content');
         resultContent.innerHTML = '';  // 既存の結果をクリア
+
+        // 結果をJSONとして保存
+        const jsonData = JSON.stringify(results, null, 2);
+        console.log('UI: 保存するJSONデータ:', jsonData);
+        resultContent.dataset.jsonData = jsonData;
 
         results.forEach(result => {
             const row = document.createElement('tr');

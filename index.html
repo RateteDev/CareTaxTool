@@ -71,8 +71,8 @@
             </div>
         </section>
 
-        <!-- 結果表示エリア -->
-        <div class="result-section" id="result-section">
+        <!-- 結果表示エクション -->
+        <section class="result-section" id="result-section" style="display: none;">
             <h2>解析結果</h2>
             <div class="result-table-wrapper">
                 <table class="result-table">
@@ -80,31 +80,24 @@
                         <tr>
                             <th>氏名</th>
                             <th>医療機関</th>
-                            <th colspan="4">区分</th>
+                            <th>診察・医療</th>
+                            <th>医薬品購入</th>
+                            <th>介護保険</th>
+                            <th>その他</th>
                             <th>支払額</th>
                             <th>補填額</th>
                             <th>日付</th>
                         </tr>
-                        <tr class="category-headers">
-                            <th colspan="2"></th>
-                            <th>診察</th>
-                            <th>薬剤</th>
-                            <th>介護</th>
-                            <th>他</th>
-                            <th colspan="3"></th>
-                        </tr>
                     </thead>
                     <tbody id="result-content">
-                        <!-- 結果がここに表示されます -->
                     </tbody>
                 </table>
             </div>
             <div class="button-group">
-                <button id="json-copy-button" class="copy-button developer-only"
-                    style="display: none;">JSONをコピー</button>
+                <button id="json-copy-button" class="copy-button" style="display: none;">JSONコピー</button>
                 <button id="copy-excel-button" class="copy-button">Excel用コピー</button>
             </div>
-        </div>
+        </section>
 
         <!-- エラー表示エリア -->
         <div class="error-message" id="error-message"></div>
