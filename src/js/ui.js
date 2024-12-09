@@ -76,6 +76,33 @@ export class UI {
             }
         });
 
+        // API Keyの更新処理
+        const apiKeyInput = document.getElementById('api-key');
+        const updateApiKeyButton = document.getElementById('update-api-key');
+
+        updateApiKeyButton.addEventListener('click', () => {
+            const apiKey = apiKeyInput.value.trim();
+            if (apiKey) {
+                try {
+                    geminiApi.setApiKey(apiKey);
+                    localStorage.setItem('geminiApiKey', apiKey);
+                    showNotification('API Keyを更新しました', 'success');
+                } catch (error) {
+                    console.error('UI: API Key更新エラー:', error);
+                    showNotification('API Keyの更新に失敗しました', 'error');
+                }
+            } else {
+                showNotification('API Keyを入力してください', 'warning');
+            }
+        });
+
+        // API KeyのEnterキー対応
+        apiKeyInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                updateApiKeyButton.click();
+            }
+        });
+
         // モデル名の更新処理
         const modelNameInput = document.getElementById('model-name');
         const updateModelButton = document.getElementById('update-model');
