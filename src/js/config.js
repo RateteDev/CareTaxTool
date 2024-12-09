@@ -4,7 +4,7 @@
 export const GEMINI_CONFIG = {
     // モデル設定
     MODEL: {
-        NAME: "gemini-1.5-pro",
+        NAME: "gemini-1.5-flash",
         VERSION: "0.2.1"
     },
 

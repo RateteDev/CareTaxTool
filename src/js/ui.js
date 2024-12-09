@@ -1,6 +1,5 @@
 import { geminiApi } from './api.js';
-import { copyToClipboard, showError, fileToDataUrl, showNotification } from './utils.js';
-import { GEMINI_CONFIG } from './config.js';
+import { copyToClipboard, fileToDataUrl, showNotification } from './utils.js';
 
 class UI {
     constructor() {
@@ -12,7 +11,10 @@ class UI {
         this.apiKeyInput = document.getElementById('api-key');
         this.updateApiKeyButton = document.getElementById('update-api-key');
         this.uploadButton = document.getElementById('upload-button');
-        this.selectedFiles = [];
+        this.imagesGrid = document.getElementById('images-grid');
+
+        // 選択された画像の管理用Map（キー: ファイル名, 値: {file: File, dataUrl: string}）
+        this.selectedImageMap = new Map();
 
         this.initializeEventListeners();
         console.log('UI: 初期化完了');
@@ -22,8 +24,6 @@ class UI {
      * イベントリスナーを初期化する
      */
     initializeEventListeners() {
-        console.log('UI: イベントリスナーの初期化開始');
-
         // ドラッグ&ドロップイベント
         this.uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -36,21 +36,19 @@ class UI {
             console.log('UI: ドラッグリーブ');
         });
 
-        this.uploadArea.addEventListener('drop', (e) => {
+        this.uploadArea.addEventListener('drop', async (e) => {
             console.log('UI: ファイルドロップ');
             e.preventDefault();
             this.uploadArea.classList.remove('drag-over');
-            this.selectedFiles = Array.from(e.dataTransfer.files);
-            console.log('UI: 選択されたファイル数:', this.selectedFiles.length);
-            showNotification(`${this.selectedFiles.length}個のファイルが選択されました`, 'info');
+            const files = Array.from(e.dataTransfer.files);
+            await this.handleFileSelection(files);
         });
 
         // ファイル選択イベント
-        this.fileInput.addEventListener('change', (e) => {
+        this.fileInput.addEventListener('change', async (e) => {
             console.log('UI: ファイル選択');
-            this.selectedFiles = Array.from(e.target.files);
-            console.log('UI: 選択されたファイル数:', this.selectedFiles.length);
-            showNotification(`${this.selectedFiles.length}個のファイルが選択されました`, 'info');
+            const files = Array.from(e.target.files);
+            await this.handleFileSelection(files);
         });
 
         // コピーボタンイベント
@@ -79,7 +77,6 @@ class UI {
             try {
                 console.log('UI: API Key更新開始');
                 geminiApi.setApiKey(apiKey);
-                // API Keyをローカルストレージに保存
                 localStorage.setItem('geminiApiKey', apiKey);
                 console.log('UI: API Key更新成功');
                 showNotification('API Keyを更新しました', 'success');
@@ -92,37 +89,20 @@ class UI {
         // アップロードボタンイベント
         this.uploadButton.addEventListener('click', () => {
             console.log('UI: アップロードボタンクリック');
-            this.handleFiles(this.selectedFiles);
+            this.processSelectedFiles();
         });
 
         console.log('UI: イベントリスナーの初期化完了');
     }
 
     /**
-     * ファイルを処理する
-     * @param {FileList} files - アップロードされたファイルリスト
+     * ファイル選択時の処理
+     * @param {File[]} files - 選択されたファイルリスト
      */
-    async handleFiles(files) {
-        console.log('UI: ファイル処理開始');
-        console.log('UI: 処理対象ファイル数:', files.length);
-
-        if (!geminiApi.apiKey) {
-            console.warn('UI: API Keyが未設定');
-            showNotification('API Keyを入力してください', 'error');
-            return;
-        }
-
-        if (!files.length) {
-            console.warn('UI: ファイルが未選択');
-            showNotification('ファイルを選択してください', 'error');
-            return;
-        }
-
-        showNotification('画像の解析を開始します...', 'info');
+    async handleFileSelection(files) {
+        console.log('UI: ファイル選択処理開始');
 
         for (const file of files) {
-            console.log('UI: ファイル処理:', file.name);
-
             if (!file.type.startsWith('image/')) {
                 console.warn('UI: 非画像ファイル:', file.type);
                 showNotification('画像ファイルのみアップロード可能です', 'error');
@@ -130,24 +110,88 @@ class UI {
             }
 
             try {
-                console.log('UI: 画像データ変換開始');
                 const imageData = await fileToDataUrl(file);
-                console.log('UI: 画像データ変換完了');
+                this.selectedImageMap.set(file.name, { file, dataUrl: imageData });
+            } catch (error) {
+                console.error('UI: 画像データ変換エラー:', error);
+                showNotification(`${file.name}の読み込みに失敗しました`, 'error');
+            }
+        }
 
-                console.log('UI: 画像解析開始');
-                const result = await geminiApi.analyzeImage(imageData);
+        this.updatePreview();
+        showNotification(`${this.selectedImageMap.size}個のファイルが選択されました`, 'info');
+    }
+
+    /**
+     * プレビューを更新する
+     */
+    updatePreview() {
+        console.log('UI: プレビュー更新');
+        this.imagesGrid.innerHTML = '';
+
+        for (const [fileName, { dataUrl }] of this.selectedImageMap) {
+            const imageItem = document.createElement('div');
+            imageItem.className = 'image-item';
+
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.alt = fileName;
+
+            const info = document.createElement('div');
+            info.className = 'image-info';
+            info.textContent = fileName;
+
+            const removeButton = document.createElement('button');
+            removeButton.className = 'remove-button';
+            removeButton.innerHTML = '×';
+            removeButton.onclick = () => {
+                this.selectedImageMap.delete(fileName);
+                this.updatePreview();
+                showNotification(`${fileName}を削除しました`, 'info');
+            };
+
+            imageItem.appendChild(img);
+            imageItem.appendChild(info);
+            imageItem.appendChild(removeButton);
+            this.imagesGrid.appendChild(imageItem);
+        }
+    }
+
+    /**
+     * 選択されたファイルを処理する
+     */
+    async processSelectedFiles() {
+        console.log('UI: 選択ファイル処理開始');
+
+        if (!geminiApi.apiKey) {
+            console.warn('UI: API Keyが未設定');
+            showNotification('API Keyを入力してください', 'error');
+            return;
+        }
+
+        if (this.selectedImageMap.size === 0) {
+            console.warn('UI: ファイルが未選択');
+            showNotification('ファイルを選択してください', 'error');
+            return;
+        }
+
+        showNotification('画像の解析を開始します...', 'info');
+
+        for (const [fileName, { dataUrl }] of this.selectedImageMap) {
+            try {
+                console.log('UI: 画像解析開始:', fileName);
+                const result = await geminiApi.analyzeImage(dataUrl);
                 console.log('UI: 画像解析完了:', result);
 
                 this.displayResult(result);
-                showNotification('画像の解析が完了しました', 'success');
+                showNotification(`${fileName}の解析が完了しました`, 'success');
             } catch (error) {
                 console.error('UI: 画像処理エラー:', error);
-                showNotification(error.message, 'error');
+                showNotification(`${fileName}の解析に失敗しました: ${error.message}`, 'error');
             }
         }
 
         console.log('UI: 全ファイルの処理完了');
-        this.selectedFiles = [];
     }
 
     /**
