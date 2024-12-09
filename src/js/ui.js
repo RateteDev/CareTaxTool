@@ -75,6 +75,71 @@ export class UI {
                 }
             }
         });
+
+        // モデル名の更新処理
+        const modelNameInput = document.getElementById('model-name');
+        const updateModelButton = document.getElementById('update-model');
+
+        updateModelButton.addEventListener('click', () => {
+            const modelName = modelNameInput.value.trim();
+            if (modelName) {
+                try {
+                    geminiApi.setModelName(modelName);
+                    localStorage.setItem('modelName', modelName);
+                    showNotification('モデル名を更新しました', 'success');
+                } catch (error) {
+                    console.error('UI: モデル名更新エラー:', error);
+                    showNotification('モデル名の更新に失敗しました', 'error');
+                }
+            } else {
+                showNotification('モデル名を入力してください', 'warning');
+            }
+        });
+
+        // モデル名のEnterキー対応
+        modelNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                updateModelButton.click();
+            }
+        });
+
+        // 開発者モードの切り替え処理
+        document.getElementById('developer-mode-toggle').addEventListener('change', function () {
+            const developerModeSection = document.querySelector('.developer-mode');
+
+            if (this.checked) {
+                const confirmed = confirm('開発者モードを有効にしますか？\n\n注意：このモードは開発とデバッグ目的のみに使用してください。一般ユーザーは無効のままにすることを推奨します。');
+                if (confirmed) {
+                    developerModeSection.classList.add('active');
+                    document.getElementById('json-copy-button').style.display = 'inline-block';
+                    showNotification('開発者モードが有効になりました', 'success');
+                } else {
+                    this.checked = false;
+                }
+            } else {
+                developerModeSection.classList.remove('active');
+                document.getElementById('json-copy-button').style.display = 'none';
+                showNotification('開発者モードが無効になりました', 'info');
+            }
+        });
+
+        // JSONコピーボタンのイベントリスナー
+        document.getElementById('json-copy-button').addEventListener('click', function () {
+            const resultContent = document.getElementById('result-content');
+            if (!resultContent.dataset.jsonData) {
+                showNotification('コピーするデータがありません', 'error');
+                return;
+            }
+
+            navigator.clipboard.writeText(resultContent.dataset.jsonData)
+                .then(() => {
+                    showNotification('JSONデータをクリップボードにコピーしました', 'success');
+                })
+                .catch(err => {
+                    console.error('クリップボードへのコピーに失敗しました:', err);
+                    showNotification('コピーに失敗しました', 'error');
+                });
+        });
     }
 
     /**

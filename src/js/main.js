@@ -17,6 +17,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             showNotification('API Keyを復元しました', 'info');
         }
 
+        // ローカルストレージからモデル名を復元
+        const savedModelName = localStorage.getItem('modelName');
+        if (savedModelName) {
+            console.log('Main: 保存済みモデル名を復元');
+            document.getElementById('model-name').value = savedModelName;
+            geminiApi.setModelName(savedModelName);
+            showNotification('モデル名を復元しました', 'info');
+        } else {
+            // デフォルトのモデル名を設定
+            const defaultModelName = GEMINI_CONFIG.MODEL.NAME;
+            document.getElementById('model-name').value = defaultModelName;
+            geminiApi.setModelName(defaultModelName);
+        }
+
         console.log('Main: 初期化完了');
     } catch (error) {
         console.error('Main: 初期化エラー:', error);

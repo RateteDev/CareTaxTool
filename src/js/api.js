@@ -7,6 +7,7 @@ export class GeminiAPI {
         this.apiKey = null;
         this.genAI = null;
         this.model = null;
+        this.modelName = null;
         this.jsonSchema = GEMINI_CONFIG.JSON_SCHEMA;
         console.log('GeminiAPI: 初期化完了');
     }
@@ -20,14 +21,43 @@ export class GeminiAPI {
         try {
             this.apiKey = key;
             this.genAI = new GoogleGenerativeAI(this.apiKey);
-            this.model = this.genAI.getGenerativeModel({
-                model: GEMINI_CONFIG.MODEL.NAME
-            });
+            this.initializeModel();
             console.log('GeminiAPI: API Key設定完了');
         } catch (error) {
             console.error('GeminiAPI: API Key設定エラー:', error);
             throw error;
         }
+    }
+
+    /**
+     * モデル名を設定する
+     * @param {string} name - モデル名
+     */
+    setModelName(name) {
+        console.log('GeminiAPI: モデル名設定開始');
+        try {
+            this.modelName = name;
+            if (this.genAI) {
+                this.initializeModel();
+            }
+            console.log('GeminiAPI: モデル名設定完了');
+        } catch (error) {
+            console.error('GeminiAPI: モデル名設定エラー:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * モデルを初期化する
+     * @private
+     */
+    initializeModel() {
+        if (!this.genAI) {
+            throw new Error('API Keyが設定されていません');
+        }
+        this.model = this.genAI.getGenerativeModel({
+            model: this.modelName || GEMINI_CONFIG.MODEL.NAME
+        });
     }
 
     /**

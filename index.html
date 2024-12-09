@@ -17,10 +17,31 @@
 
         <!-- API Key入力セクション -->
         <div class="api-key-section">
-            <label for="api-key">Gemini API Key:</label>
-            <div class="api-key-input-group">
-                <input type="text" id="api-key" placeholder="API Keyを入力してください">
-                <button id="update-api-key" class="button">更新</button>
+            <div class="developer-mode">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="developer-mode-toggle">
+                    <span class="checkbox-text">開発者モード</span>
+                </label>
+            </div>
+
+            <div class="connection-settings">
+                <h2>接続先設定</h2>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label for="model-name">モデル名:</label>
+                        <div class="api-key-input-group">
+                            <input type="text" id="model-name" value="gemini-1.5-flash" placeholder="モデル名を入力">
+                            <button id="update-model" class="button">更新</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <label for="api-key">API Key:</label>
+                        <div class="api-key-input-group">
+                            <input type="text" id="api-key" placeholder="API Keyを入力してください">
+                            <button id="update-api-key" class="button">更新</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -79,7 +100,8 @@
                 </table>
             </div>
             <div class="button-group">
-                <button id="copy-button" class="copy-button">JSONをコピー</button>
+                <button id="json-copy-button" class="copy-button developer-only"
+                    style="display: none;">JSONをコピー</button>
                 <button id="copy-excel-button" class="copy-button">Excel用コピー</button>
             </div>
         </div>
