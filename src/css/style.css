@@ -244,9 +244,7 @@ body {
 /* 画像表示エリア */
 .images-section {
     margin-top: 20px;
-    padding: 20px;
-    background-color: #f8f8f8;
-    border-radius: 4px;
+    display: none;
 }
 
 .images-grid {
@@ -256,47 +254,44 @@ body {
     margin-top: 15px;
 }
 
-.image-item {
+.image-container {
     position: relative;
-    background: white;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    aspect-ratio: 4/3;
+    background: #f5f5f5;
 }
 
-.image-item img {
+.image-container img {
     width: 100%;
-    height: 200px;
+    height: 100%;
     object-fit: contain;
-    border-radius: 2px;
+    display: block;
 }
 
-.image-item .image-info {
-    margin-top: 10px;
-    font-size: 0.9em;
-    color: var(--text-color);
-}
-
-.image-item .remove-button {
+.delete-image {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(244, 67, 54, 0.8);
-    color: white;
-    border: none;
-    border-radius: 50%;
+    top: 8px;
+    right: 8px;
     width: 24px;
     height: 24px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 16px;
+    transition: background-color 0.2s;
+    padding: 0;
+    line-height: 1;
 }
 
-.image-item .remove-button:hover {
-    background: var(--error-color);
+.delete-image:hover {
+    background: rgba(0, 0, 0, 0.7);
 }
 
 /* ボタングループ */

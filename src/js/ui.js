@@ -4,21 +4,7 @@ import { copyToClipboard, fileToDataUrl, showNotification } from './utils.js';
 export class UI {
     constructor() {
         console.log('UI: 初期化開始');
-        this.uploadArea = document.getElementById('upload-area');
-        this.fileInput = document.getElementById('file-input');
-        this.resultContent = document.getElementById('result-content');
-        this.copyButton = document.getElementById('copy-button');
-        this.copyExcelButton = document.getElementById('copy-excel-button');
-        this.apiKeyInput = document.getElementById('api-key');
-        this.updateApiKeyButton = document.getElementById('update-api-key');
-        this.uploadButton = document.getElementById('upload-button');
-        this.imagesGrid = document.getElementById('images-grid');
-
-        // 選択された画像の管理用Map（キー: ファイル名, 値: {file: File, dataUrl: string}）
-        this.selectedImageMap = new Map();
-        // 最新の解析結果
-        this.lastResult = null;
-
+        this.processedFiles = new Map(); // Set から Map に変更して、ファイル情報を保持
         this.initializeEventListeners();
         console.log('UI: 初期化完了');
     }
@@ -27,85 +13,63 @@ export class UI {
      * イベントリスナーを初期化する
      */
     initializeEventListeners() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const uploadButton = document.getElementById('upload-button');
+        const imagesGrid = document.getElementById('images-grid');
+
         // ドラッグ&ドロップイベント
-        this.uploadArea.addEventListener('dragover', (e) => {
+        uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            this.uploadArea.classList.add('drag-over');
-            console.log('UI: ドラッグオーバー');
+            e.stopPropagation();
+            uploadArea.classList.add('dragover');
         });
 
-        this.uploadArea.addEventListener('dragleave', () => {
-            this.uploadArea.classList.remove('drag-over');
-            console.log('UI: ドラッグリーブ');
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('dragover');
         });
 
-        this.uploadArea.addEventListener('drop', async (e) => {
-            console.log('UI: ファイルドロップ');
+        uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            this.uploadArea.classList.remove('drag-over');
-            const files = Array.from(e.dataTransfer.files);
-            await this.handleFileSelection(files);
+            e.stopPropagation();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            this.handleFileUpload(files);
         });
 
         // ファイル選択イベント
-        this.fileInput.addEventListener('change', async (e) => {
-            console.log('UI: ファイル選択');
-            const files = Array.from(e.target.files);
-            await this.handleFileSelection(files);
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            this.handleFileUpload(files);
+            // ファイル選択をリセット
+            fileInput.value = '';
         });
 
-        // コピーボタンイベント
-        this.copyButton.addEventListener('click', () => {
-            console.log('UI: コピーボタンクリック');
-            if (!this.lastResult) {
-                console.warn('UI: コピーする解析結果がありません');
-                showNotification('コピーする解析結果がありません', 'error');
-                return;
-            }
-            try {
-                copyToClipboard(this.lastResult);
-                console.log('UI: JSONコピー成功');
-                showNotification('JSONをクリップボードにコピーしました', 'success');
-            } catch (error) {
-                console.error('UI: JSONコピーエラー:', error);
-                showNotification('JSONのコピーに失敗しました', 'error');
+        // アップロードボタンクリックイベント
+        uploadButton.addEventListener('click', () => {
+            const files = fileInput.files;
+            if (files.length > 0) {
+                this.handleFileUpload(files);
+                // ファイル選択をリセット
+                fileInput.value = '';
+            } else {
+                showNotification('ファイルを選択してください', 'warning');
             }
         });
 
-        // Excel用コピーボタンイベント
-        this.copyExcelButton.addEventListener('click', () => {
-            console.log('UI: Excel用コピーボタンクリック');
-            this.copyForExcel();
-        });
-
-        // API Key更新イベント
-        this.updateApiKeyButton.addEventListener('click', () => {
-            console.log('UI: API Key更新ボタンクリック');
-            const apiKey = this.apiKeyInput.value;
-            if (!apiKey) {
-                console.warn('UI: API Keyが未入力');
-                showNotification('API Keyを入力してください', 'error');
-                return;
-            }
-            try {
-                console.log('UI: API Key更新開始');
-                geminiApi.setApiKey(apiKey);
-                localStorage.setItem('geminiApiKey', apiKey);
-                console.log('UI: API Key更新成功');
-                showNotification('API Keyを更新しました', 'success');
-            } catch (error) {
-                console.error('UI: API Key更新エラー:', error);
-                showNotification('API Keyの更新に失敗しました', 'error');
+        // 画像削除イベントの委譲
+        imagesGrid.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-image')) {
+                const imageContainer = e.target.closest('.image-container');
+                if (imageContainer) {
+                    const fileId = imageContainer.dataset.fileId;
+                    console.log('UI: 画像削除 - FileID:', fileId);
+                    this.removeFile(fileId, imageContainer);
+                }
             }
         });
-
-        // アップロードボタンイベント
-        this.uploadButton.addEventListener('click', () => {
-            console.log('UI: アップロードボタンクリック');
-            this.processSelectedFiles();
-        });
-
-        console.log('UI: イベントリスナーの初期化完了');
     }
 
     /**
@@ -357,6 +321,103 @@ export class UI {
 
     formatAmount(amount) {
         return amount.toLocaleString() + '円';
+    }
+
+    handleFileUpload(files) {
+        console.log('UI: ファイルアップロード処理開始 - ファイル数:', files.length);
+        const newFiles = [];
+        const duplicateFiles = [];
+
+        // ファイルの重複チェック
+        Array.from(files).forEach(file => {
+            const fileId = this.generateFileId(file);
+            console.log('UI: ファイルチェック - Name:', file.name, 'ID:', fileId);
+
+            if (this.processedFiles.has(fileId)) {
+                console.log('UI: 重複ファイル検出 - Name:', file.name);
+                duplicateFiles.push(file.name);
+            } else {
+                console.log('UI: 新規ファイル追加 - Name:', file.name);
+                this.processedFiles.set(fileId, {
+                    name: file.name,
+                    size: file.size,
+                    lastModified: file.lastModified
+                });
+                newFiles.push({ file, fileId });
+            }
+        });
+
+        // 重複ファイルがある場合は警告を表示
+        if (duplicateFiles.length > 0) {
+            const message = duplicateFiles.length === 1
+                ? `「${duplicateFiles[0]}」は既に処理済みです`
+                : `${duplicateFiles.length}個のファイルが既に処理済みです`;
+            showNotification(message, 'warning');
+        }
+
+        // 新規ファイルのみを処理
+        if (newFiles.length > 0) {
+            this.processFiles(newFiles);
+        }
+    }
+
+    generateFileId(file) {
+        return `${file.name}-${file.size}-${file.lastModified}`;
+    }
+
+    async processFiles(files) {
+        try {
+            console.log('UI: ファイル処理開始 - 件数:', files.length);
+            const imagesGrid = document.getElementById('images-grid');
+
+            for (const { file, fileId } of files) {
+                console.log('UI: 画像処理 - Name:', file.name);
+                const dataUrl = await fileToDataUrl(file);
+
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'image-container';
+                imageContainer.dataset.fileId = fileId;
+
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.alt = file.name;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-image';
+                deleteButton.innerHTML = '×';
+                deleteButton.title = '画像を削除';
+
+                imageContainer.appendChild(img);
+                imageContainer.appendChild(deleteButton);
+                imagesGrid.appendChild(imageContainer);
+            }
+
+            document.getElementById('images-section').style.display = 'block';
+            showNotification('画像のアップロードが完了しました', 'success');
+
+        } catch (error) {
+            console.error('UI: ファイル処理エラー:', error);
+            showNotification('ファイルの処理中にエラーが発生しました', 'error');
+        }
+    }
+
+    removeFile(fileId, imageContainer) {
+        console.log('UI: ファイル削除開始 - FileID:', fileId);
+
+        // 処理済みファイルリストから削除
+        this.processedFiles.delete(fileId);
+
+        // DOM要素を削除
+        imageContainer.remove();
+
+        // 画像が全て削除された場合はセクションを非表示
+        const imagesGrid = document.getElementById('images-grid');
+        if (imagesGrid.children.length === 0) {
+            document.getElementById('images-section').style.display = 'none';
+        }
+
+        console.log('UI: ファイル削除完了 - 残りファイル数:', this.processedFiles.size);
+        showNotification('画像を削除しました', 'info');
     }
 }
 
