@@ -8,6 +8,7 @@ class UI {
         this.fileInput = document.getElementById('file-input');
         this.resultContent = document.getElementById('result-content');
         this.copyButton = document.getElementById('copy-button');
+        this.copyExcelButton = document.getElementById('copy-excel-button');
         this.apiKeyInput = document.getElementById('api-key');
         this.updateApiKeyButton = document.getElementById('update-api-key');
         this.uploadButton = document.getElementById('upload-button');
@@ -15,6 +16,8 @@ class UI {
 
         // 選択された画像の管理用Map（キー: ファイル名, 値: {file: File, dataUrl: string}）
         this.selectedImageMap = new Map();
+        // 最新の解析結果
+        this.lastResult = null;
 
         this.initializeEventListeners();
         console.log('UI: 初期化完了');
@@ -54,15 +57,25 @@ class UI {
         // コピーボタンイベント
         this.copyButton.addEventListener('click', () => {
             console.log('UI: コピーボタンクリック');
+            if (!this.lastResult) {
+                console.warn('UI: コピーする解析結果がありません');
+                showNotification('コピーする解析結果がありません', 'error');
+                return;
+            }
             try {
-                const data = JSON.parse(this.resultContent.textContent);
-                copyToClipboard(data);
+                copyToClipboard(this.lastResult);
                 console.log('UI: JSONコピー成功');
                 showNotification('JSONをクリップボードにコピーしました', 'success');
             } catch (error) {
                 console.error('UI: JSONコピーエラー:', error);
                 showNotification('JSONのコピーに失敗しました', 'error');
             }
+        });
+
+        // Excel用コピーボタンイベント
+        this.copyExcelButton.addEventListener('click', () => {
+            console.log('UI: Excel用コピーボタンクリック');
+            this.copyForExcel();
         });
 
         // API Key更新イベント
@@ -195,11 +208,55 @@ class UI {
     }
 
     /**
+     * Excel用のデータをクリップボードにコピーする
+     */
+    copyForExcel() {
+        console.log('UI: Excel用コピー開始');
+        if (!this.lastResult) {
+            console.warn('UI: コピーする解析結果がありません');
+            showNotification('コピーする解析結果がありません', 'error');
+            return;
+        }
+
+        try {
+            // カテゴリーの判定結果を「該当する」に変換
+            const medicalCategories = {
+                medical_exam: this.lastResult.category.medical_exam ? '該当する' : '',
+                medicine: this.lastResult.category.medicine ? '該当する' : '',
+                nursing_care: this.lastResult.category.nursing_care ? '該当する' : '',
+                others: this.lastResult.category.others ? '該当する' : ''
+            };
+
+            // タブ区切りのテキストを作成
+            const excelText = [
+                this.lastResult.recipient,
+                this.lastResult.facility,
+                medicalCategories.medical_exam,
+                medicalCategories.medicine,
+                medicalCategories.nursing_care,
+                medicalCategories.others,
+                this.lastResult.amount,
+                '',  // 補填される金額（空欄）
+                this.lastResult.date || ''  // 日付（ない場合は空欄）
+            ].join('\t');
+
+            // クリップボードにコピー
+            navigator.clipboard.writeText(excelText);
+            console.log('UI: Excel用コピー成功:', excelText);
+            showNotification('Excel用データをコピーしました', 'success');
+        } catch (error) {
+            console.error('UI: Excel用コピーエラー:', error);
+            showNotification('Excel用データのコピーに失敗しました', 'error');
+        }
+    }
+
+    /**
      * 結果を表示する
      * @param {Object} result - 解析結果
      */
     displayResult(result) {
         console.log('UI: 結果表示:', result);
+        this.lastResult = result;  // 結果を保存
         this.resultContent.textContent = JSON.stringify(result, null, 2);
     }
 }
