@@ -204,10 +204,8 @@ export class UI {
             const files = Array.from(this.selectedFiles.values());
             console.log('UI: 処理対象ファイル数:', files.length);
 
-            const results = [];  // 解析結果を保持する配列
-
-            // ファイルを処理
-            for (const file of files) {
+            // 全ファイルの処理を並列実行
+            const processPromises = files.map(async file => {
                 const fileId = this.generateFileId(file);
                 console.log('UI: ファイル処理開始 - Name:', file.name);
 
@@ -219,9 +217,6 @@ export class UI {
                     // API呼び出し
                     const result = await geminiApi.analyzeImage(dataUrl);
                     console.log('UI: 解析結果:', result);
-
-                    // 結果を配列に追加
-                    results.push(result);
 
                     // 処理済みファイルに移動
                     this.processedFiles.set(fileId, {
@@ -236,6 +231,7 @@ export class UI {
                     this.updatePreviewStatus(fileId, 'processed');
 
                     showNotification(`「${file.name}」の解析が完了しました`, 'success');
+                    return { fileId, result, success: true };
                 } catch (error) {
                     console.error('UI: ファイル処理エラー:', error);
 
@@ -245,26 +241,52 @@ export class UI {
                         size: file.size,
                         lastModified: file.lastModified,
                         error: error.message,
-                        dataUrl: dataUrl // Base64エンコードが成功していた場合は保持
+                        dataUrl: dataUrl
                     });
 
                     // プレビュー表示をエラーに更新
                     this.updatePreviewStatus(fileId, 'error');
                     showNotification(`「${file.name}」の処理中にエラーが発生しました: ${error.message}`, 'error');
+                    return { fileId, error, success: false };
                 }
-            }
+            });
+
+            // 全ての処理完了を待機
+            const results = await Promise.all(processPromises);
+
+            // 成功した結果のみを抽出
+            const successfulResults = results
+                .filter(r => r.success)
+                .map(r => r.result);
 
             // 選択済みファイルをクリア（プレビューは維持）
             this.selectedFiles.clear();
 
             // 結果を表示（エラーがなかったもののみ）
-            if (results.length > 0) {
-                this.displayResults(results);
+            if (successfulResults.length > 0) {
+                this.displayResults(successfulResults);
                 document.getElementById('result-section').style.display = 'block';
             }
 
-            console.log('UI: 全ファイルの処理完了');
-            showNotification('すべての画像の処理が完了しました', 'success');
+            const totalFiles = files.length;
+            const successCount = successfulResults.length;
+            const errorCount = totalFiles - successCount;
+
+            console.log('UI: 全ファイルの処理完了', {
+                total: totalFiles,
+                success: successCount,
+                error: errorCount
+            });
+
+            // 処理完了の通知
+            if (errorCount > 0) {
+                showNotification(
+                    `処理が完了しました（成功: ${successCount}件, エラー: ${errorCount}件）`,
+                    errorCount === totalFiles ? 'error' : 'warning'
+                );
+            } else {
+                showNotification('すべての画像の処理が完了しました', 'success');
+            }
 
         } catch (error) {
             console.error('UI: 処理エラー:', error);
