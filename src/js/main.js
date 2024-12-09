@@ -1,6 +1,7 @@
 import { geminiApi } from './api.js';
 import { ui } from './ui.js';
 import { showNotification } from './utils.js';
+import { GEMINI_CONFIG } from './config.js';
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', async () => {

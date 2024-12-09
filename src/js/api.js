@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GEMINI_CONFIG } from './config.js';
 
 export class GeminiAPI {
     constructor() {
@@ -6,27 +7,27 @@ export class GeminiAPI {
         this.apiKey = null;
         this.genAI = null;
         this.model = null;
-        this.systemPrompt = null;
-        this.jsonSchema = `
-医療費領収書データは以下のJSONスキーマに従って出力してください：
-
-{
-    "recipient": string,      // 受診者の名前
-    "facility": string,      // 医療機関または薬局の名称
-    "category": {
-        "medical_exam": boolean,  // 診察・医療
-        "medicine": boolean,      // 医薬品購入
-        "nursing_care": boolean,  // 介護保険サービス
-        "others": boolean         // その他の医療費
-    },
-    "amount": number,        // 支払金額
-    "date": string,         // 領収書の日付（YYYY-MM-DD形式）
-    "notes": string         // 特記事項や補足情報
-}
-
-必須項目: recipient, facility, category, amount
-`;
+        this.jsonSchema = GEMINI_CONFIG.JSON_SCHEMA;
         console.log('GeminiAPI: 初期化完了');
+    }
+
+    /**
+     * API Keyを設定する
+     * @param {string} key - Gemini API Key
+     */
+    setApiKey(key) {
+        console.log('GeminiAPI: API Key設定開始');
+        try {
+            this.apiKey = key;
+            this.genAI = new GoogleGenerativeAI(this.apiKey);
+            this.model = this.genAI.getGenerativeModel({
+                model: GEMINI_CONFIG.MODEL.NAME
+            });
+            console.log('GeminiAPI: API Key設定完了');
+        } catch (error) {
+            console.error('GeminiAPI: API Key設定エラー:', error);
+            throw error;
+        }
     }
 
     /**
@@ -45,25 +46,6 @@ export class GeminiAPI {
         } catch (error) {
             console.error('GeminiAPI: システムプロンプト読み込みエラー:', error);
             throw new Error(`システムプロンプトの読み込みエラー: ${error.message}`);
-        }
-    }
-
-    /**
-     * API Keyを設定する
-     * @param {string} key - Gemini API Key
-     */
-    setApiKey(key) {
-        console.log('GeminiAPI: API Key設定開始');
-        try {
-            this.apiKey = key;
-            this.genAI = new GoogleGenerativeAI(this.apiKey);
-            this.model = this.genAI.getGenerativeModel({
-                model: "gemini-1.5-pro"
-            });
-            console.log('GeminiAPI: API Key設定完了');
-        } catch (error) {
-            console.error('GeminiAPI: API Key設定エラー:', error);
-            throw error;
         }
     }
 
@@ -103,8 +85,7 @@ export class GeminiAPI {
             const imagePart = this.base64ToGenerativePart(imageData, "image/jpeg");
 
             console.log('GeminiAPI: API通信開始');
-            const prompt = `以下の医療費の領収書画像から情報を抽出してください。
-必ず有効なJSONとして解析可能な形式で出力してください。
+            const prompt = `${GEMINI_CONFIG.PROMPTS.ANALYZE_IMAGE}
 
 ${this.jsonSchema}`;
 

@@ -1,5 +1,6 @@
 import { geminiApi } from './api.js';
 import { copyToClipboard, showError, fileToDataUrl, showNotification } from './utils.js';
+import { GEMINI_CONFIG } from './config.js';
 
 class UI {
     constructor() {
@@ -78,6 +79,7 @@ class UI {
             try {
                 console.log('UI: API Key更新開始');
                 geminiApi.setApiKey(apiKey);
+                // API Keyをローカルストレージに保存
                 localStorage.setItem('geminiApiKey', apiKey);
                 console.log('UI: API Key更新成功');
                 showNotification('API Keyを更新しました', 'success');
