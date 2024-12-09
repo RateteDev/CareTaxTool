@@ -211,9 +211,10 @@ export class UI {
                 const fileId = this.generateFileId(file);
                 console.log('UI: ファイル処理開始 - Name:', file.name);
 
+                let dataUrl;
                 try {
                     // Base64エンコード
-                    const dataUrl = await fileToDataUrl(file);
+                    dataUrl = await fileToDataUrl(file);
 
                     // API呼び出し
                     const result = await geminiApi.analyzeImage(dataUrl);
@@ -232,19 +233,31 @@ export class UI {
                     });
 
                     // プレビュー表示を処理済みに更新
-                    this.updatePreviewToProcessed(fileId);
+                    this.updatePreviewStatus(fileId, 'processed');
 
                     showNotification(`「${file.name}」の解析が完了しました`, 'success');
                 } catch (error) {
                     console.error('UI: ファイル処理エラー:', error);
-                    showNotification(`「${file.name}」の処理中にエラーが発生しました`, 'error');
+
+                    // エラー情報を保存
+                    this.processedFiles.set(fileId, {
+                        name: file.name,
+                        size: file.size,
+                        lastModified: file.lastModified,
+                        error: error.message,
+                        dataUrl: dataUrl // Base64エンコードが成功していた場合は保持
+                    });
+
+                    // プレビュー表示をエラーに更新
+                    this.updatePreviewStatus(fileId, 'error');
+                    showNotification(`「${file.name}」の処理中にエラーが発生しました: ${error.message}`, 'error');
                 }
             }
 
             // 選択済みファイルをクリア（プレビューは維持）
             this.selectedFiles.clear();
 
-            // 結果を表示
+            // 結果を表示（エラーがなかったもののみ）
             if (results.length > 0) {
                 this.displayResults(results);
                 document.getElementById('result-section').style.display = 'block';
@@ -259,20 +272,25 @@ export class UI {
         }
     }
 
-    updatePreviewToProcessed(fileId) {
+    updatePreviewStatus(fileId, status) {
+        console.log('UI: プレビュー状態更新 - FileID:', fileId, 'Status:', status);
         const previewContainer = document.querySelector(`.image-container[data-file-id="${fileId}"]`);
         if (previewContainer) {
-            // プレビュークラスを削除し、処理済みクラスを追加
-            previewContainer.classList.remove('preview');
-            previewContainer.classList.add('processed');
+            // 既存のステータスクラスを削除
+            previewContainer.classList.remove('preview', 'processed', 'error');
+            // 新しいステータスクラスを追加
+            previewContainer.classList.add(status);
 
             // 削除ボタンのタイトルを更新
             const deleteButton = previewContainer.querySelector('.delete-image');
             if (deleteButton) {
-                deleteButton.title = '処理済み画像を削除';
+                const buttonTitle = status === 'processed' ? '処理済み画像を削除' : 'エラー画像を削除';
+                deleteButton.title = buttonTitle;
                 // クリックイベントを更新
                 deleteButton.onclick = () => this.removeFile(fileId, previewContainer);
             }
+        } else {
+            console.warn('UI: プレビューコンテナが見つかりせん - FileID:', fileId);
         }
     }
 
