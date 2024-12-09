@@ -282,6 +282,30 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     aspect-ratio: 4/3;
     background: white;
+    transition: all 0.3s ease;
+}
+
+/* プレビュー状態 */
+.image-container.preview {
+    border: 2px solid #4CAF50;
+}
+
+/* 処理済み状態 */
+.image-container.processed {
+    border: 2px solid #2196F3;
+}
+
+.image-container.processed::after {
+    content: '処理済み';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(33, 150, 243, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    pointer-events: none;
 }
 
 .image-container img {
@@ -309,6 +333,7 @@ body {
     transition: background-color 0.2s;
     padding: 0;
     line-height: 1;
+    z-index: 1;
 }
 
 .delete-image:hover {
