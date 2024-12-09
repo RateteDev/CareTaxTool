@@ -1,41 +1,39 @@
 /**
+ * データをクリップボードにコピーする
+ * @param {Object} data - コピーするデータ
+ */
+export function copyToClipboard(data) {
+    const text = JSON.stringify(data, null, 2);
+    navigator.clipboard.writeText(text);
+}
+
+/**
  * エラーメッセージを表示する
  * @param {string} message - エラーメッセージ
  */
-function showError(message) {
+export function showError(message) {
     const errorElement = document.getElementById('error-message');
     errorElement.textContent = message;
-    errorElement.classList.add('visible');
+    errorElement.style.display = 'block';
+
+    // 3秒後にメッセージを消す
     setTimeout(() => {
-        errorElement.classList.remove('visible');
-    }, 5000);
+        errorElement.style.display = 'none';
+    }, 3000);
 }
 
 /**
- * ファイルを画像URLに変換する
- * @param {File} file - 画像ファイル
- * @returns {Promise<string>} - 画像のData URL
+ * ファイルをBase64エンコードされたデータURLに変換する
+ * @param {File} file - 変換するファイル
+ * @returns {Promise<string>} - Base64エンコードされたデータURL
  */
-function fileToDataUrl(file) {
+export function fileToDataUrl(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
+        reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'));
         reader.readAsDataURL(file);
     });
-}
-
-/**
- * JSONデータをクリップボードにコピーする
- * @param {Object} data - コピーするJSONデータ
- */
-function copyToClipboard(data) {
-    const textArea = document.createElement('textarea');
-    textArea.value = JSON.stringify(data, null, 2);
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
 }
 
 /**
@@ -55,4 +53,21 @@ function formatDate(dateStr) {
  */
 function parseAmount(amountStr) {
     return parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
+}
+
+/**
+ * 通知を表示する
+ * @param {string} message - 通知メッセージ
+ * @param {string} type - 通知タイプ ('success' | 'error' | 'info')
+ * @param {number} duration - 表示時間（ミリ秒）
+ */
+export function showNotification(message, type = 'info', duration = 3000) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    notification.style.display = 'block';
+
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, duration);
 } 

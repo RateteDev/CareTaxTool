@@ -2,6 +2,8 @@
 :root {
     --primary-color: #4CAF50;
     --error-color: #f44336;
+    --success-color: #4CAF50;
+    --info-color: #2196F3;
     --text-color: #333;
     --border-color: #ddd;
 }
@@ -28,12 +30,32 @@ body {
     margin-bottom: 20px;
 }
 
-.api-key-section input {
-    width: 100%;
+.api-key-input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.api-key-input-group input {
+    flex: 1;
     padding: 10px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    margin-top: 5px;
+}
+
+/* ボタンスタイル */
+.button {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #45a049;
 }
 
 /* アップロードエリア */
@@ -54,6 +76,10 @@ body {
 
 .upload-content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
 
 #file-input {
@@ -78,23 +104,28 @@ body {
 .result-section {
     margin-top: 20px;
     padding: 20px;
-    border: 1px solid var(--border-color);
+    background-color: #f8f8f8;
     border-radius: 4px;
 }
 
 .result-content {
     margin: 10px 0;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
     white-space: pre-wrap;
+    font-family: monospace;
 }
 
 .copy-button {
-    padding: 10px 20px;
+    margin-top: 10px;
+    padding: 8px 16px;
     background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 .copy-button:hover {
@@ -103,14 +134,58 @@ body {
 
 /* エラーメッセージ */
 .error-message {
-    color: var(--error-color);
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 4px;
     display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
 }
 
-.error-message.visible {
-    display: block;
+/* 通知エリア */
+.notification-area {
+    margin-bottom: 20px;
+}
+
+.notification {
+    padding: 12px 20px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.notification.success {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.notification.error {
     background-color: rgba(244, 67, 54, 0.1);
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+}
+
+.notification.info {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: var(--info-color);
+    border: 1px solid var(--info-color);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

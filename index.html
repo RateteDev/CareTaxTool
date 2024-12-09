@@ -12,10 +12,18 @@
     <div class="container">
         <h1>医療費控除申請支援ツール</h1>
 
+        <!-- 通知エリア -->
+        <div class="notification-area">
+            <div id="notification" class="notification"></div>
+        </div>
+
         <!-- API Key入力セクション -->
         <div class="api-key-section">
             <label for="api-key">Gemini API Key:</label>
-            <input type="password" id="api-key" placeholder="API Keyを入力してください">
+            <div class="api-key-input-group">
+                <input type="text" id="api-key" placeholder="API Keyを入力してください">
+                <button id="update-api-key" class="button">更新</button>
+            </div>
         </div>
 
         <!-- 画像アップロードエリア -->
@@ -25,6 +33,7 @@
                 <p>または</p>
                 <input type="file" id="file-input" accept="image/*" multiple>
                 <label for="file-input" class="upload-button">ファイルを選択</label>
+                <button id="upload-button" class="button">アップロード</button>
             </div>
         </div>
 
@@ -40,10 +49,17 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="src/js/utils.js"></script>
-    <script src="src/js/api.js"></script>
-    <script src="src/js/ui.js"></script>
-    <script src="src/js/main.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "@google/generative-ai": "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.2.1/+esm"
+        }
+    }
+    </script>
+    <script src="src/js/utils.js" type="module"></script>
+    <script src="src/js/api.js" type="module"></script>
+    <script src="src/js/ui.js" type="module"></script>
+    <script src="src/js/main.js" type="module"></script>
 </body>
 
 </html>

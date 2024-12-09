@@ -1,26 +1,24 @@
-// アプリケーションの初期化
-document.addEventListener('DOMContentLoaded', () => {
-    // ローカルストレージからAPI Keyを復元
-    const savedApiKey = localStorage.getItem('geminiApiKey');
-    if (savedApiKey) {
-        document.getElementById('api-key').value = savedApiKey;
-        geminiApi.setApiKey(savedApiKey);
-    }
+import { geminiApi } from './api.js';
+import { ui } from './ui.js';
+import { showNotification } from './utils.js';
 
-    // API Keyの保存
-    document.getElementById('api-key').addEventListener('change', (e) => {
-        const apiKey = e.target.value;
-        if (apiKey) {
-            localStorage.setItem('geminiApiKey', apiKey);
-        } else {
-            localStorage.removeItem('geminiApiKey');
+// ページ読み込み時の初期化
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Main: 初期化開始');
+
+    try {
+        // ローカルストレージからAPI Keyを復元
+        const savedApiKey = localStorage.getItem('geminiApiKey');
+        if (savedApiKey) {
+            console.log('Main: 保存済みAPI Keyを復元');
+            document.getElementById('api-key').value = savedApiKey;
+            geminiApi.setApiKey(savedApiKey);
+            showNotification('API Keyを復元しました', 'info');
         }
-    });
 
-    // デバッグモード
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-        console.log('デバッグモードで起動しています');
-        window.debugGeminiApi = geminiApi;
-        window.debugUI = ui;
+        console.log('Main: 初期化完了');
+    } catch (error) {
+        console.error('Main: 初期化エラー:', error);
+        showNotification('初期化中にエラーが発生しました', 'error');
     }
 }); 
