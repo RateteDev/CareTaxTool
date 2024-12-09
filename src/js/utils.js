@@ -58,16 +58,68 @@ function parseAmount(amountStr) {
 /**
  * 通知を表示する
  * @param {string} message - 通知メッセージ
- * @param {string} type - 通知タイプ ('success' | 'error' | 'info')
+ * @param {string} type - 通知タイプ ('success' | 'error' | 'info' | 'warning')
  * @param {number} duration - 表示時間（ミリ秒）
  */
-export function showNotification(message, type = 'info', duration = 3000) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
+export function showNotification(message, type = 'info', duration = 10000) {
+    const notificationArea = document.querySelector('.notification-area');
+    const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.style.display = 'block';
 
+    // 通知の内容を作成
+    const content = document.createElement('div');
+    content.className = 'notification-content';
+    content.textContent = message;
+    notification.appendChild(content);
+
+    // 閉じるボタンを作成
+    const closeButton = document.createElement('button');
+    closeButton.className = 'notification-close';
+    closeButton.innerHTML = '×';
+    closeButton.setAttribute('aria-label', '通知を閉じる');
+    notification.appendChild(closeButton);
+
+    // 通知を表示
+    notificationArea.appendChild(notification);
+
+    // アニメーションのために少し待ってからshowクラスを追加
     setTimeout(() => {
-        notification.style.display = 'none';
+        notification.classList.add('show');
+    }, 10);
+
+    // 閉じるボタンのイベントリスナー
+    closeButton.addEventListener('click', () => {
+        closeNotification(notification);
+    });
+
+    // 一定時間後に自動で閉じる
+    const timer = setTimeout(() => {
+        closeNotification(notification);
     }, duration);
+
+    // マウスオーバー時にタイマーを停止
+    notification.addEventListener('mouseenter', () => {
+        clearTimeout(timer);
+    });
+
+    // マウスアウト時に新しいタイマーを開始
+    notification.addEventListener('mouseleave', () => {
+        setTimeout(() => {
+            closeNotification(notification);
+        }, duration);
+    });
+}
+
+/**
+ * 通知を閉じる
+ * @param {HTMLElement} notification - 通知要素
+ */
+function closeNotification(notification) {
+    notification.classList.remove('show');
+    notification.style.animation = 'slideOut 0.3s ease-in-out forwards';
+
+    // アニメーション完了後に要素を削除
+    setTimeout(() => {
+        notification.remove();
+    }, 300);
 } 

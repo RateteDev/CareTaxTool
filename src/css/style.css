@@ -146,44 +146,98 @@ body {
 
 /* 通知エリア */
 .notification-area {
-    margin-bottom: 20px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .notification {
-    padding: 12px 20px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    display: none;
-    animation: fadeIn 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.95em;
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    background: white;
+}
+
+.notification.show {
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .notification.success {
-    background-color: rgba(76, 175, 80, 0.1);
-    color: var(--success-color);
-    border: 1px solid var(--success-color);
+    background-color: #4CAF50;
+    color: white;
 }
 
 .notification.error {
-    background-color: rgba(244, 67, 54, 0.1);
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
+    background-color: #f44336;
+    color: white;
 }
 
 .notification.info {
-    background-color: rgba(33, 150, 243, 0.1);
-    color: var(--info-color);
-    border: 1px solid var(--info-color);
+    background-color: #2196F3;
+    color: white;
 }
 
-@keyframes fadeIn {
+.notification.warning {
+    background-color: #ff9800;
+    color: white;
+}
+
+.notification-content {
+    flex-grow: 1;
+    margin-right: 12px;
+}
+
+.notification-close {
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    font-size: 1.2em;
+    border: none;
+    background: none;
+    color: inherit;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.notification-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideIn {
     from {
+        transform: translateY(-100%);
         opacity: 0;
-        transform: translateY(-10px);
     }
 
     to {
-        opacity: 1;
         transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
     }
 }
 
