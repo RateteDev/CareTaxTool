@@ -4,7 +4,8 @@ import { copyToClipboard, fileToDataUrl, showNotification } from './utils.js';
 export class UI {
     constructor() {
         console.log('UI: 初期化開始');
-        this.processedFiles = new Map(); // Set から Map に変更して、ファイル情報を保持
+        this.processedFiles = new Map(); // 処理済みファイルを管理
+        this.selectedFiles = new Map(); // 選択済みファイルを管理（fileId -> file）
         this.initializeEventListeners();
         console.log('UI: 初期化完了');
     }
@@ -36,25 +37,32 @@ export class UI {
             e.stopPropagation();
             uploadArea.classList.remove('dragover');
             const files = e.dataTransfer.files;
-            this.handleFileUpload(files);
+            this.handleFileSelection(files);
         });
 
         // ファイル選択イベント
         fileInput.addEventListener('change', (e) => {
+            console.log('UI: ファイル選択イベント発生');
             const files = e.target.files;
-            this.handleFileUpload(files);
-            // ファイル選択をリセット
+            if (files && files.length > 0) {
+                this.handleFileSelection(files);
+            }
+            // ファイル選択をリセット（同じファイルを再選択可能に）
             fileInput.value = '';
         });
 
         // アップロードボタンクリックイベント
         uploadButton.addEventListener('click', () => {
-            const files = fileInput.files;
-            if (files.length > 0) {
-                this.handleFileUpload(files);
-                // ファイル選択をリセット
-                fileInput.value = '';
+            console.log('UI: アップロードボタンクリック');
+            if (this.selectedFiles.size > 0) {
+                console.log('UI: 選択済みファイルのアップロード開始');
+                this.handleFileUpload(Array.from(this.selectedFiles.values()));
+                // アップロード後は選択済みファイルをクリア
+                this.selectedFiles.clear();
+                // プレビューをクリア
+                this.clearPreview();
             } else {
+                console.log('UI: 選択済みファイルなし');
                 showNotification('ファイルを選択してください', 'warning');
             }
         });
@@ -77,61 +85,103 @@ export class UI {
      * @param {File[]} files - 選択されたファイルリスト
      */
     async handleFileSelection(files) {
-        console.log('UI: ファイル選択処理開始');
+        console.log('UI: ファイル選択処理開始 - ファイル数:', files.length);
+        const duplicateFiles = [];
+        const newFiles = [];
 
-        for (const file of files) {
-            if (!file.type.startsWith('image/')) {
-                console.warn('UI: 非画像ファイル:', file.type);
-                showNotification('画像ファイルのみアップロード可能です', 'error');
-                continue;
-            }
+        for (const file of Array.from(files)) {
+            const fileId = this.generateFileId(file);
+            console.log('UI: ファイルチェック - Name:', file.name, 'ID:', fileId);
 
-            try {
-                const imageData = await fileToDataUrl(file);
-                this.selectedImageMap.set(file.name, { file, dataUrl: imageData });
-            } catch (error) {
-                console.error('UI: 画像データ変換エラー:', error);
-                showNotification(`${file.name}の読み込みに失敗しました`, 'error');
+            // 処理済みまたは選択済みのファイルをチェック
+            if (this.processedFiles.has(fileId) || this.selectedFiles.has(fileId)) {
+                console.log('UI: 重複ファイル検出 - Name:', file.name);
+                duplicateFiles.push(file.name);
+            } else {
+                console.log('UI: 新規ファイル追加 - Name:', file.name);
+                this.selectedFiles.set(fileId, file);
+                newFiles.push({ file, fileId });
             }
         }
 
-        this.updatePreview();
-        showNotification(`${this.selectedImageMap.size}個のファイルが選択されました`, 'info');
+        // 重複ファイルがある場合は警告を表示
+        if (duplicateFiles.length > 0) {
+            const message = duplicateFiles.length === 1
+                ? `「${duplicateFiles[0]}」は既に選択されているか処理済みです`
+                : `${duplicateFiles.length}個のファイルが重複しています`;
+            showNotification(message, 'warning');
+        }
+
+        // 新規ファイルのプレビューを表示
+        if (newFiles.length > 0) {
+            await this.showPreview(newFiles);
+            // 選択成功の通知
+            const message = newFiles.length === 1
+                ? `「${newFiles[0].file.name}」を選択しました`
+                : `${newFiles.length}個のファイルを選択しました`;
+            showNotification(message, 'success');
+        }
+
+        // 選択済みファイル数を更新
+        console.log('UI: 選択済みファイル数:', this.selectedFiles.size);
     }
 
-    /**
-     * プレビューを更新する
-     */
-    updatePreview() {
-        console.log('UI: プレビュー更新');
-        this.imagesGrid.innerHTML = '';
+    async showPreview(files) {
+        console.log('UI: プレビュー表示開始');
+        const previewGrid = document.getElementById('images-grid');
 
-        for (const [fileName, { dataUrl }] of this.selectedImageMap) {
-            const imageItem = document.createElement('div');
-            imageItem.className = 'image-item';
+        try {
+            for (const { file, fileId } of files) {
+                const dataUrl = await fileToDataUrl(file);
+                const previewContainer = document.createElement('div');
+                previewContainer.className = 'image-container preview';
+                previewContainer.dataset.fileId = fileId;
 
-            const img = document.createElement('img');
-            img.src = dataUrl;
-            img.alt = fileName;
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.alt = file.name;
 
-            const info = document.createElement('div');
-            info.className = 'image-info';
-            info.textContent = fileName;
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-image';
+                deleteButton.innerHTML = '×';
+                deleteButton.title = '選択解除';
+                deleteButton.onclick = () => this.removeSelectedFile(fileId, previewContainer);
 
-            const removeButton = document.createElement('button');
-            removeButton.className = 'remove-button';
-            removeButton.innerHTML = '×';
-            removeButton.onclick = () => {
-                this.selectedImageMap.delete(fileName);
-                this.updatePreview();
-                showNotification(`${fileName}を削除しました`, 'info');
-            };
+                previewContainer.appendChild(img);
+                previewContainer.appendChild(deleteButton);
+                previewGrid.appendChild(previewContainer);
+            }
 
-            imageItem.appendChild(img);
-            imageItem.appendChild(info);
-            imageItem.appendChild(removeButton);
-            this.imagesGrid.appendChild(imageItem);
+            document.getElementById('images-section').style.display = 'block';
+        } catch (error) {
+            console.error('UI: プレビュー表示エラー:', error);
+            showNotification('プレビューの表示中にエラーが発生しました', 'error');
         }
+    }
+
+    clearPreview() {
+        console.log('UI: プレビューをクリア');
+        const previewGrid = document.getElementById('images-grid');
+        const previews = previewGrid.querySelectorAll('.preview');
+        previews.forEach(preview => preview.remove());
+
+        if (previewGrid.children.length === 0) {
+            document.getElementById('images-section').style.display = 'none';
+        }
+    }
+
+    removeSelectedFile(fileId, previewContainer) {
+        console.log('UI: 選択済みファイルを削除 - FileID:', fileId);
+        const file = this.selectedFiles.get(fileId);
+        this.selectedFiles.delete(fileId);
+        previewContainer.remove();
+
+        if (document.getElementById('images-grid').children.length === 0) {
+            document.getElementById('images-section').style.display = 'none';
+        }
+
+        const message = `「${file.name}」の選択を解除しました`;
+        showNotification(message, 'info');
     }
 
     /**
@@ -146,7 +196,7 @@ export class UI {
             return;
         }
 
-        if (this.selectedImageMap.size === 0) {
+        if (this.selectedFiles.size === 0) {
             console.warn('UI: ファイルが未選択');
             showNotification('ファイルを選択してください', 'error');
             return;
@@ -154,7 +204,7 @@ export class UI {
 
         showNotification('画像の解析を開始します...', 'info');
 
-        for (const [fileName, { dataUrl }] of this.selectedImageMap) {
+        for (const [fileName, { dataUrl }] of this.selectedFiles) {
             try {
                 console.log('UI: 画像解析開始:', fileName);
                 const result = await geminiApi.analyzeImage(dataUrl);
@@ -326,36 +376,21 @@ export class UI {
     handleFileUpload(files) {
         console.log('UI: ファイルアップロード処理開始 - ファイル数:', files.length);
         const newFiles = [];
-        const duplicateFiles = [];
 
-        // ファイルの重複チェック
-        Array.from(files).forEach(file => {
+        // ファイルの処理
+        files.forEach(file => {
             const fileId = this.generateFileId(file);
-            console.log('UI: ファイルチェック - Name:', file.name, 'ID:', fileId);
+            console.log('UI: ファイル処理 - Name:', file.name);
 
-            if (this.processedFiles.has(fileId)) {
-                console.log('UI: 重複ファイル検出 - Name:', file.name);
-                duplicateFiles.push(file.name);
-            } else {
-                console.log('UI: 新規ファイル追加 - Name:', file.name);
-                this.processedFiles.set(fileId, {
-                    name: file.name,
-                    size: file.size,
-                    lastModified: file.lastModified
-                });
-                newFiles.push({ file, fileId });
-            }
+            this.processedFiles.set(fileId, {
+                name: file.name,
+                size: file.size,
+                lastModified: file.lastModified
+            });
+            newFiles.push({ file, fileId });
         });
 
-        // 重複ファイルがある場合は警告を表示
-        if (duplicateFiles.length > 0) {
-            const message = duplicateFiles.length === 1
-                ? `「${duplicateFiles[0]}」は既に処理済みです`
-                : `${duplicateFiles.length}個のファイルが既に処理済みです`;
-            showNotification(message, 'warning');
-        }
-
-        // 新規ファイルのみを処理
+        // ファイルを処理
         if (newFiles.length > 0) {
             this.processFiles(newFiles);
         }
@@ -402,22 +437,17 @@ export class UI {
     }
 
     removeFile(fileId, imageContainer) {
-        console.log('UI: ファイル削除開始 - FileID:', fileId);
-
-        // 処理済みファイルリストから削除
+        console.log('UI: 処理済みファイルを削除 - FileID:', fileId);
+        const fileInfo = this.processedFiles.get(fileId);
         this.processedFiles.delete(fileId);
-
-        // DOM要素を削除
         imageContainer.remove();
 
-        // 画像が全て削除された場合はセクションを非表示
-        const imagesGrid = document.getElementById('images-grid');
-        if (imagesGrid.children.length === 0) {
+        if (document.getElementById('images-grid').children.length === 0) {
             document.getElementById('images-section').style.display = 'none';
         }
 
-        console.log('UI: ファイル削除完了 - 残りファイル数:', this.processedFiles.size);
-        showNotification('画像を削除しました', 'info');
+        const message = `「${fileInfo.name}」を削除しました`;
+        showNotification(message, 'info');
     }
 }
 
