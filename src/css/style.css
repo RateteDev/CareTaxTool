@@ -57,44 +57,67 @@ body {
 
 /* アップロードエリア */
 .upload-area {
-    border: 2px dashed var(--border-color);
+    border: 2px dashed #ccc;
     border-radius: 8px;
-    padding: 20px;
+    padding: 40px 20px;
     text-align: center;
-    margin: 20px 0;
     background-color: #fafafa;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.upload-area.drag-over {
+.upload-area:hover {
     border-color: var(--primary-color);
-    background-color: rgba(76, 175, 80, 0.1);
+    background-color: #f0f9f0;
+}
+
+.upload-area.dragover {
+    border-color: var(--primary-color);
+    background-color: #f0f9f0;
 }
 
 .upload-content {
-    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
 }
 
-#file-input {
-    display: none;
+.upload-content i {
+    font-size: 48px;
+    color: #888;
 }
 
-.upload-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: var(--primary-color);
+.upload-content p {
+    margin: 0;
+    color: #666;
+}
+
+/* 送信ボタンの改善 */
+.button.primary {
+    background-color: #4CAF50;
     color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin: 0 auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.upload-button:hover {
+.button.primary:hover {
     background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 設定項目の間隔調整 */
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 /* 結果表示エリア */
