@@ -4,7 +4,7 @@
 
 ## ツールページ
 
-<a href="https://caretaxtool.ratete.dev" target="_blank">https://caretaxtool.ratete.dev</a>
+https://caretaxtool.ratete.dev
 
 ## 概要
 
