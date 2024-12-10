@@ -567,11 +567,12 @@ section h2 {
 
 /* 処理開始セクション */
 .process-section {
-    text-align: center;
+    text-align: left;
 }
 
 .process-content {
     padding: 20px 0;
+    text-align: center;
 }
 
 /* プライマリーボタン */
@@ -582,6 +583,8 @@ section h2 {
     font-size: 1.1em;
     font-weight: 500;
     transition: background-color 0.3s ease;
+    display: inline-block;
+    margin: 0 auto;
 }
 
 .button.primary:hover {
@@ -620,7 +623,10 @@ section h2 {
 
 .header h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 31.2px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
 }
 
 .author-info {
@@ -650,4 +656,20 @@ section h2 {
 
 .email-link i {
     font-size: 20px;
+}
+
+.repo-name {
+    font-size: 14px;
+    color: #666;
+    margin-left: 4px;
+}
+
+.github-link:hover .repo-name {
+    color: var(--primary-color);
+}
+
+.version {
+    font-size: 14px;
+    color: #888;
+    font-weight: normal;
 }
