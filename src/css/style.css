@@ -607,3 +607,47 @@ section h2 {
     color: #333;
     font-weight: 600;
 }
+
+/* ヘッダースタイル */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.github-link,
+.email-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.github-link:hover,
+.email-link:hover {
+    color: var(--primary-color);
+}
+
+.github-link i {
+    font-size: 24px;
+}
+
+.email-link i {
+    font-size: 20px;
+}
