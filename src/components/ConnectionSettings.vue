@@ -1,63 +1,46 @@
 <template>
-  <div class="api-key-section">
-    <div class="developer-mode">
-      <label class="checkbox-label">
-        <input type="checkbox" v-model="isDeveloperMode">
-        <span class="checkbox-text">開発者モード</span>
-      </label>
-    </div>
-
-    <div class="connection-settings section-container">
-      <h2>接続先設定</h2>
-      <div class="settings-group">
-        <div class="setting-item">
-          <label for="model-name">モデル名:</label>
-          <div class="api-key-input-group">
-            <input 
-              type="text" 
-              id="model-name" 
-              v-model="modelName" 
-              placeholder="モデル名を入力"
-              :disabled="!isDeveloperMode"
-            >
-            <button 
-              @click="updateModel" 
-              class="button"
-              :disabled="!isDeveloperMode || !modelName"
-            >更新</button>
-          </div>
-          <div v-if="isDeveloperMode" class="help-text">
-            ※ モデル名の変更は開発者モードでのみ可能です
-          </div>
+  <div class="connection-settings section-container">
+    <h2>接続先設定</h2>
+    <div class="settings-group">
+      <div class="setting-item">
+        <label for="model-name">モデル名:</label>
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="model-name" 
+            v-model="modelName" 
+            placeholder="モデル名を入力"
+          >
+          <button 
+            @click="updateModel" 
+            class="button"
+            :disabled="!modelName"
+          >更新</button>
         </div>
-        <div class="setting-item">
-          <label for="api-key">API Key:</label>
-          <div class="api-key-input-group">
-            <input 
-              :type="showApiKey ? 'text' : 'password'" 
-              id="api-key" 
-              v-model="apiKey" 
-              placeholder="API Keyを入力してください"
-              autocomplete="off"
-              @paste="handleApiKeyPaste"
-            >
-            <button 
-              class="button icon-button"
-              @click="toggleApiKeyVisibility"
-              :title="showApiKey ? '非表示' : '表示'"
-            >
-              <i :class="showApiKey ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-            </button>
-            <button 
-              @click="updateApiKey" 
-              class="button"
-              :disabled="!apiKey"
-            >更新</button>
-          </div>
-          <div v-if="isDeveloperMode" class="debug-info">
-            <div>API Key長: {{ apiKey.length }}文字</div>
-            <div>最終更新: {{ lastUpdated }}</div>
-          </div>
+      </div>
+      <div class="setting-item">
+        <label for="api-key">API Key:</label>
+        <div class="input-group">
+          <input 
+            :type="showApiKey ? 'text' : 'password'" 
+            id="api-key" 
+            v-model="apiKey" 
+            placeholder="API Keyを入力してください"
+            autocomplete="off"
+            @paste="handleApiKeyPaste"
+          >
+          <button 
+            class="button icon-button"
+            @click="toggleApiKeyVisibility"
+            :title="showApiKey ? '非表示' : '表示'"
+          >
+            <i :class="showApiKey ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+          <button 
+            @click="updateApiKey" 
+            class="button"
+            :disabled="!apiKey"
+          >更新</button>
         </div>
       </div>
     </div>
@@ -143,43 +126,14 @@ const handleApiKeyPaste = (event: ClipboardEvent) => {
 </script>
 
 <style scoped>
-.api-key-section {
-  margin: 1rem 0;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.developer-mode {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  color: var(--text-color);
-  font-size: 0.9rem;
-}
-
 .connection-settings {
-  padding: 1rem;
-  background-color: white;
-}
-
-.connection-settings h2 {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  color: var(--text-color);
-  font-weight: normal;
+  margin-bottom: 2rem;
 }
 
 .settings-group {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .setting-item {
@@ -191,36 +145,41 @@ const handleApiKeyPaste = (event: ClipboardEvent) => {
 .setting-item label {
   color: var(--text-color);
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.api-key-input-group {
+.input-group {
   display: flex;
   gap: 0.5rem;
 }
 
-input[type="text"],
-input[type="password"] {
+input {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   background-color: white;
   color: var(--text-color);
   font-size: 0.9rem;
+  transition: border-color 0.2s ease;
 }
 
-input[type="text"]:disabled {
-  background-color: #f8f9fa;
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+input:disabled {
+  background-color: #f5f5f5;
   cursor: not-allowed;
 }
 
-input[type="text"]::placeholder,
-input[type="password"]::placeholder {
+input::placeholder {
   color: #999;
 }
 
 .button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   background-color: var(--primary-color);
   color: white;
   border: none;
@@ -228,6 +187,7 @@ input[type="password"]::placeholder {
   cursor: pointer;
   font-size: 0.9rem;
   min-width: 60px;
+  transition: background-color 0.2s ease;
 }
 
 .button:disabled {

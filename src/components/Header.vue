@@ -1,17 +1,15 @@
 <template>
   <header class="header">
-    <div class="title-row">
-      <h1>医療費控除申請支援ツール<span class="version">v1.0.0</span></h1>
-      <div class="links">
-        <a href="https://github.com/RateteDev/CareTaxTool" target="_blank" class="github-link">
-          <i class="fab fa-github"></i>
-          RateteDev/CareTaxTool
-        </a>
-        <a href="mailto:dev@ratete.dev" class="email-link">
-          <i class="far fa-envelope"></i>
-          dev@ratete.dev
-        </a>
-      </div>
+    <h1>医療費控除申請支援ツール<span class="version">v1.0.0</span></h1>
+    <div class="contact-info">
+      <a href="https://github.com/RateteDev/CareTaxTool" target="_blank" class="github-link">
+        <i class="fab fa-github"></i>
+        RateteDev/CareTaxTool
+      </a>
+      <a href="mailto:dev@ratete.dev" class="email-link">
+        <i class="far fa-envelope"></i>
+        dev@ratete.dev
+      </a>
     </div>
   </header>
 </template>
@@ -22,36 +20,37 @@
 
 <style scoped>
 .header {
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1rem;
-  padding: 1rem;
-}
-
-.title-row {
+  background-color: transparent;
+  box-shadow: none;
+  margin-bottom: 2rem;
+  padding: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 h1 {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 500;
-  color: #333;
+  color: var(--text-color);
   margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .version {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   color: #666;
-  margin-left: 0.5rem;
+  font-weight: normal;
 }
 
-.links {
+.contact-info {
   display: flex;
-  gap: 1rem;
-  font-size: 0.9rem;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  flex-wrap: wrap;
 }
 
 .github-link, .email-link {
@@ -60,13 +59,53 @@ h1 {
   gap: 0.5rem;
   color: #666;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .github-link:hover, .email-link:hover {
-  color: #333;
+  color: var(--primary-color);
 }
 
 i {
   font-size: 1rem;
+}
+
+@media (max-width: 48rem) { /* 768px */
+  .header {
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  .version {
+    font-size: 0.75rem;
+  }
+
+  .contact-info {
+    gap: 1rem;
+    font-size: 0.8125rem;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 30rem) { /* 480px */
+  .header {
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: 1.125rem;
+  }
+
+  .contact-info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 </style> 
