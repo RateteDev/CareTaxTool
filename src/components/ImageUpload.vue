@@ -136,142 +136,134 @@ watch(selectedFiles, () => {
 
 <style scoped>
 .selection-section {
-  margin: 1rem 0;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
 .selection-section h2 {
-  font-size: 1rem;
-  margin: 0;
-  padding: 0.75rem 1rem;
-  color: #333;
-  font-weight: normal;
-  border-bottom: 1px solid #eee;
+  font-size: 1.1rem;
+  margin: 0 0 1.5rem 0;
+  padding: 0;
+  color: var(--text-color);
+  font-weight: 500;
 }
 
 .upload-area {
-  border: 1px dashed #ddd;
-  border-radius: 4px;
-  padding: 2rem 1rem;
-  margin: 1rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 3rem 1rem;
   text-align: center;
   cursor: pointer;
-  background-color: white;
+  background-color: #fafafa;
+  transition: all 0.2s ease;
 }
 
 .upload-area:hover {
   border-color: var(--primary-color);
+  background-color: #f5f5f5;
 }
 
 .upload-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   color: #666;
 }
 
 .upload-content p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .upload-limits {
   color: #999;
-  font-size: 0.8rem !important;
-  margin-top: 0.5rem !important;
+  font-size: 0.85rem !important;
+  margin-top: 0.75rem !important;
 }
 
 .upload-icon {
-  font-size: 2rem;
-  color: #666;
+  font-size: 3rem;
+  color: #9e9e9e;
   margin-bottom: 0.5rem;
 }
 
 .images-section {
-  margin: 1rem;
+  margin-top: 2rem;
 }
 
 .images-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
 }
 
 .image-item {
   position: relative;
   background-color: white;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .image-item img {
   width: 100%;
-  height: 150px;
+  height: 180px;
   object-fit: cover;
 }
 
 .image-name {
-  padding: 0.5rem;
-  font-size: 0.8rem;
+  padding: 0.75rem;
+  font-size: 0.85rem;
   color: #666;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  background-color: #f8f9fa;
+  background-color: #fafafa;
   border-top: 1px solid var(--border-color);
 }
 
 .remove-button {
   position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
-  background-color: rgba(255, 255, 255, 0.9);
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.95);
   border: none;
   border-radius: 50%;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #666;
-  font-size: 0.8rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.remove-button:hover {
+  background-color: #f44336;
+  color: white;
 }
 
 .process-content {
-  margin: 1rem;
+  margin-top: 2rem;
   text-align: center;
+  padding-top: 2rem;
   border-top: 1px solid var(--border-color);
-  padding-top: 1rem;
-}
-
-.button {
-  padding: 0.5rem 1rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  min-width: 60px;
 }
 
 .button.analyze {
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
   font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.button:hover {
-  opacity: 0.9;
-}
-
-.button i {
-  margin-right: 0.5rem;
+.button.analyze i {
+  font-size: 1.2rem;
 }
 </style> 
