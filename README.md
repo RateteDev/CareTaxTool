@@ -1,22 +1,5 @@
-# CareTaxTool
+# Vue 3 + TypeScript + Vite
 
-医療費控除申請のための領収書解析ツール
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## ツールページ
-
-https://caretaxtool.ratete.dev
-
-## 概要
-
-医療費の領収書をアップロードすると、自動で内容を解析し、医療費控除申請に必要な情報を抽出します。
-
-## 使用方法
-
-1. API Keyを設定
-2. 領収書画像をアップロード
-3. 解析結果を確認・エクスポート
-
-## 連絡先
-
-- GitHub: [RateteDev/CareTaxTool](https://github.com/RateteDev/CareTaxTool)
-- Email: dev@ratete.dev 
+Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
