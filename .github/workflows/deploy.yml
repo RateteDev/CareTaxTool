@@ -30,8 +30,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: List files before build
+        run: ls -la
+      
       - name: Build
         run: npm run build
+      
+      - name: List dist directory
+        run: ls -la dist
+      
+      - name: Check index.html content
+        run: cat dist/index.html
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
