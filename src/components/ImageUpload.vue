@@ -20,9 +20,6 @@
           @change="handleFileSelect"
         >
         <button class="button">ファイルを選択</button>
-        <p class="upload-limits">
-          ※ 1ファイル10MB以内、最大5ファイルまで
-        </p>
       </div>
     </div>
 
@@ -60,9 +57,6 @@ const props = defineProps<{
   isAnalyzing: boolean
 }>();
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_FILES = 5;
-
 const emit = defineEmits(['analyze']);
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFiles = ref<File[]>([]);
@@ -96,19 +90,10 @@ const validateFile = (file: File): boolean => {
     showNotification(`${file.name}は画像ファイルではありません`, 'warning');
     return false;
   }
-  if (file.size > MAX_FILE_SIZE) {
-    showNotification(`${file.name}は10MBを超えています`, 'warning');
-    return false;
-  }
   return true;
 };
 
 const addFiles = (files: File[]) => {
-  if (selectedFiles.value.length + files.length > MAX_FILES) {
-    showNotification(`アップロードできるファイルは最大${MAX_FILES}個までです`, 'warning');
-    return;
-  }
-
   const validFiles = files.filter(validateFile);
   const newUrls = validFiles.map(file => URL.createObjectURL(file));
   

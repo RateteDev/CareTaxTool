@@ -20,7 +20,7 @@ interface MedicalReceipt {
 
 Example Response:
 {
-  "name": "山田 太郎",
+  "name": "山田太郎",
   "institution": "東京クリニック",
   "medical": true,
   "pharmacy": true,
@@ -38,5 +38,6 @@ Example Response:
 4. 日付はYYYY-MM-DD形式の文字列で返してください
 5. 該当しない項目は、数値の場合は0、文字列の場合は空文字列、ブール値の場合はfalseを設定してください
 6. 必ずJSONとして解析可能な形式で返してください
-7. 余分な説明は不要です。JSONのみを返してください`
+7. 余分な説明は不要です。JSONのみを返してください
+8. 名前は姓名の間に空白を入れず、「様」などの敬称も付けないでください`
 }; 

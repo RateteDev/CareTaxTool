@@ -15,9 +15,9 @@ import Notification from './components/Notification.vue';
 import ConnectionSettings from './components/ConnectionSettings.vue';
 import ImageUpload from './components/ImageUpload.vue';
 import ResultTable from './components/ResultTable.vue';
-import { geminiApi } from './utils/gemini';
+import { geminiApi } from './utils/GeminiAPI';
 import { showNotification } from './utils/notification';
-import { MedicalReceipt } from './types/receipt';
+import { MedicalReceipt } from './types/MedicalReceipt';
 
 const results = ref<MedicalReceipt[]>([]);
 const isAnalyzing = ref(false);
@@ -87,9 +87,9 @@ body {
 }
 
 .section-container {
-  width: 800px;
+  width: 1200px;
   background-color: var(--background-color);
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
   margin-bottom: 2rem;
   padding: 1.5rem;
@@ -105,14 +105,18 @@ h2 {
 }
 
 .button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.875rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button:hover {
@@ -122,21 +126,23 @@ h2 {
 .button.primary {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
+  height: 3rem;
 }
 
 input {
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
   border: 0.0625rem solid var(--border-color);
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
   width: 100%;
   margin-bottom: 1rem;
   box-sizing: border-box;
+  height: 2.75rem;
 }
 
 .upload-area {
   border: 0.125rem dashed var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   padding: 2rem;
   text-align: center;
   background-color: #fafafa;
@@ -183,7 +189,7 @@ input {
 }
 
 .header {
-  width: 800px;
+  width: 1200px;
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { GEMINI_CONFIG } from '../config/gemini';
-import { MedicalReceipt } from '../types/receipt';
+import { GEMINI_CONFIG } from '../config/gemini_config';
+import { MedicalReceipt } from '../types/MedicalReceipt';
 
 class GeminiAPI {
   private api: GoogleGenerativeAI | null = null;

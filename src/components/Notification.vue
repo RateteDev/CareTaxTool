@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { NotificationType } from '../types/receipt';
+import { NotificationType } from '../types/MedicalReceipt';
 
 interface Notification {
   id: number;
@@ -103,21 +103,31 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 1rem;
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: slideIn 0.3s ease-out;
   min-width: 300px;
+  max-width: 400px;
+  word-break: break-word;
 }
 
 .notification-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-content span {
+  line-height: 1.4;
+  font-size: 0.9rem;
 }
 
 .notification i {
   font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .close-button {
@@ -127,10 +137,14 @@ onBeforeUnmount(() => {
   padding: 0.25rem;
   cursor: pointer;
   opacity: 0.8;
-  border-radius: 4px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
 }
 
 .close-button:hover {
