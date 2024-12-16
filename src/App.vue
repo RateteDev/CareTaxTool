@@ -1,9 +1,9 @@
 <template>
-  <div class="container">
+  <div id="root">
     <Header />
     <Notification />
     <ConnectionSettings />
-    <ImageUpload @analyze="handleAnalyze" />
+    <ImageUpload @analyze="handleAnalyze" :isAnalyzing="isAnalyzing" />
     <ResultTable :results="results" />
   </div>
 </template>
@@ -20,9 +20,15 @@ import { showNotification } from './utils/notification';
 import { MedicalReceipt } from './types/receipt';
 
 const results = ref<MedicalReceipt[]>([]);
+const isAnalyzing = ref(false);
 
 const handleAnalyze = async (files: File[]) => {
+  if (isAnalyzing.value) return;
+  
   try {
+    isAnalyzing.value = true;
+    showNotification('領収書の解析を開始します...', 'info');
+    
     const newResults: MedicalReceipt[] = [];
     for (const file of files) {
       const reader = new FileReader();
@@ -35,10 +41,13 @@ const handleAnalyze = async (files: File[]) => {
       const result = await geminiApi.analyzeReceipt(imageData);
       newResults.push(result);
     }
+    
     results.value = [...results.value, ...newResults];
     showNotification('領収書の解析が完了しました', 'success');
   } catch (error) {
     showNotification((error as Error).message, 'error');
+  } finally {
+    isAnalyzing.value = false;
   }
 };
 </script>
@@ -63,116 +72,28 @@ body {
   background-color: #f5f5f5;
   color: var(--text-color);
   line-height: 1.5;
-  min-height: 100vh;
-  min-height: 100dvh;
 }
 
-#app {
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #f5f5f5;
-}
-
-.container {
   width: 100%;
-  max-width: 75rem;
-  margin: 0 auto;
+  background-color: #f5f5f5;
   padding: 2rem;
   box-sizing: border-box;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-@media (max-width: 80rem) {
-  .container {
-    max-width: 60rem;
-  }
-}
-
-@media (max-width: 64rem) {
-  .container {
-    max-width: 90%;
-    padding: 1.5rem;
-  }
-
-  .section-container {
-    padding: 1.25rem;
-  }
-}
-
-@media (max-width: 48rem) {
-  body {
-    background-color: #fff;
-  }
-
-  #app {
-    background-color: #fff;
-  }
-
-  .container {
-    padding: 1rem;
-  }
-
-  .section-container {
-    box-shadow: none;
-    border: 0.0625rem solid var(--border-color);
-  }
-
-  .section-container {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  h2 {
-    font-size: 1rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .button {
-    padding: 0.5rem 0.75rem;
-  }
-
-  .button.primary {
-    padding: 0.5rem 1rem;
-  }
-
-  input {
-    padding: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .result-table th,
-  .result-table td {
-    padding: 0.75rem;
-    font-size: 0.875rem;
-  }
-}
-
-@media (max-width: 30rem) {
-  .container {
-    padding: 0.75rem;
-  }
-
-  .section-container {
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .upload-area {
-    padding: 1.5rem 1rem;
-  }
-
-  .upload-icon {
-    font-size: 2.5rem;
-  }
 }
 
 .section-container {
+  width: 800px;
   background-color: var(--background-color);
   border-radius: 0.5rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
   margin-bottom: 2rem;
   padding: 1.5rem;
+  box-sizing: border-box;
 }
 
 h2 {
@@ -210,6 +131,7 @@ input {
   font-size: 0.875rem;
   width: 100%;
   margin-bottom: 1rem;
+  box-sizing: border-box;
 }
 
 .upload-area {
@@ -220,6 +142,8 @@ input {
   background-color: #fafafa;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .upload-area:hover {
@@ -237,6 +161,7 @@ input {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
+  box-sizing: border-box;
 }
 
 .result-table th,
@@ -244,6 +169,7 @@ input {
   padding: 1rem;
   text-align: left;
   border-bottom: 0.0625rem solid var(--border-color);
+  box-sizing: border-box;
 }
 
 .result-table th {
@@ -257,10 +183,12 @@ input {
 }
 
 .header {
+  width: 800px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  box-sizing: border-box;
 }
 
 .header h1 {
@@ -283,5 +211,35 @@ input {
 
 .header-contact a:hover {
   color: var(--primary-color);
+}
+
+.button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.button.analyzing {
+  position: relative;
+  padding-left: 2.5rem;
+}
+
+.button.analyzing::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
 }
 </style>

@@ -39,17 +39,26 @@
     </div>
 
     <div class="process-content" v-if="selectedFiles.length > 0">
-      <button @click="startAnalysis" class="button analyze">
-        <i class="fas fa-receipt"></i>
-        領収書を解析
+      <button 
+        @click="startAnalysis" 
+        class="button analyze"
+        :class="{ 'analyzing': isAnalyzing }"
+        :disabled="isAnalyzing"
+      >
+        <i class="fas fa-receipt" v-if="!isAnalyzing"></i>
+        {{ isAnalyzing ? '解析中...' : '領収書を解析' }}
       </button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits, onBeforeUnmount, watch } from 'vue';
+import { ref, defineEmits, defineProps, onBeforeUnmount, watch } from 'vue';
 import { showNotification } from '../utils/notification';
+
+const props = defineProps<{
+  isAnalyzing: boolean
+}>();
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 5;
@@ -265,5 +274,9 @@ watch(selectedFiles, () => {
 
 .button.analyze i {
   font-size: 1.2rem;
+}
+
+.button.analyze.analyzing {
+  opacity: 0.8;
 }
 </style> 
