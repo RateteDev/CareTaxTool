@@ -1,5 +1,5 @@
 <template>
-  <section class="result-section" v-if="results.length > 0">
+  <section class="result-section section-container" v-if="results.length > 0">
     <h2>解析結果</h2>
     <div class="result-table-wrapper">
       <table class="result-table">
@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
 import { showNotification } from '../utils/notification';
-import { MedicalReceipt } from '../types/receipt';
+import { MedicalReceipt } from '../types/MedicalReceipt';
 
 const props = defineProps<{
   results: MedicalReceipt[];
@@ -113,14 +113,13 @@ const copyAsExcel = () => {
 <style scoped>
 .result-section {
   margin: 1rem 0;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .result-table-wrapper {
   overflow-x: auto;
   margin: 0;
+  background-color: white;
+  border-radius: 4px;
 }
 
 .result-table {
@@ -139,6 +138,8 @@ const copyAsExcel = () => {
 .result-table th {
   background-color: #f8f9fa;
   font-weight: 500;
+  color: #666;
+  white-space: nowrap;
 }
 
 .result-table tr:hover {
@@ -170,6 +171,7 @@ const copyAsExcel = () => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
+  transition: opacity 0.2s ease;
 }
 
 .copy-button:hover {
