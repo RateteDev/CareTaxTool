@@ -127,7 +127,9 @@ const startAnalysis = () => {
     showNotification('画像を選択してください', 'warning');
     return;
   }
-  emit('analyze', selectedFiles.value);
+  if (!props.isAnalyzing) {
+    emit('analyze', selectedFiles.value);
+  }
 };
 
 // クリーンアップ
