@@ -5,6 +5,7 @@
       <table class="result-table">
         <thead>
           <tr>
+            <th>ID</th>
             <th>氏名</th>
             <th>医療機関</th>
             <th>診察・医療</th>
@@ -18,6 +19,9 @@
         </thead>
         <tbody>
           <tr v-for="(result, index) in results" :key="index">
+            <td>
+              <a href="#" class="id-link" @click.prevent="scrollToImage(result.id)">{{ result.id }}</a>
+            </td>
             <td>{{ result.name }}</td>
             <td>{{ result.institution }}</td>
             <td class="category-cell">
@@ -65,6 +69,7 @@
       <table class="result-table">
         <thead>
           <tr>
+            <th>ID</th>
             <th>氏名</th>
             <th>医療機関</th>
             <th>診察・医療</th>
@@ -78,6 +83,7 @@
         </thead>
         <tbody>
           <tr v-for="(result, index) in formattedResults" :key="index">
+            <td>{{ result.id }}</td>
             <td>{{ result.name }}</td>
             <td>{{ result.institution }}</td>
             <td class="category-cell">
@@ -131,6 +137,21 @@ const props = defineProps<{
 const isFormatting = ref(false);
 const formattedResults = ref<MedicalReceipt[]>([]);
 
+const scrollToImage = (id: string) => {
+  document.querySelectorAll('.image-item').forEach(item => {
+    item.classList.remove('highlighted');
+  });
+
+  const imageElement = document.getElementById(`receipt-${id}`);
+  if (imageElement) {
+    imageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    imageElement.classList.add('highlighted');
+    setTimeout(() => {
+      imageElement.classList.remove('highlighted');
+    }, 3000);
+  }
+};
+
 const formatNumber = (value: number): string => {
   return value.toLocaleString();
 };
@@ -158,7 +179,6 @@ const formatData = async () => {
     const { results, explanation } = await geminiApi.formatData(props.results);
     formattedResults.value = results;
     
-    // 説明文がある場合は表示
     if (explanation) {
       showNotification(explanation, 'info');
     }
@@ -291,5 +311,16 @@ const copyAsExcel = () => {
 
 .format-button i {
   font-size: 1rem;
+}
+
+.id-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.id-link:hover {
+  text-decoration: underline;
 }
 </style> 
