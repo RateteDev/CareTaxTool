@@ -1,10 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GEMINI_CONFIG } from '../config/gemini_config';
 import { MedicalReceipt } from '../types/MedicalReceipt';
+import { RECEIPT_CONSTANTS } from '../constants/receipt';
 
 class GeminiAPI {
   private api: GoogleGenerativeAI | null = null;
   private modelName: string = 'gemini-1.5-flash';
+  private receiptCounter: number = 0;
+
+  private generateReceiptId(): string {
+    this.receiptCounter++;
+    return String(this.receiptCounter).padStart(RECEIPT_CONSTANTS.ID.PAD_LENGTH, '0');
+  }
 
   setApiKey(apiKey: string) {
     console.log('GeminiAPI: API Keyを設定します');
@@ -45,7 +52,6 @@ class GeminiAPI {
       console.log('GeminiAPI: 受信したレスポンス:', text);
 
       try {
-        // レスポンスからJSONの部分を抽出
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
           throw new Error('レスポンスにJSONが含まれていません');
@@ -56,8 +62,9 @@ class GeminiAPI {
         
         const parsed = JSON.parse(jsonStr);
         
-        // 型の正規化
+        // 型の正規化とIDの付与
         const normalized: MedicalReceipt = {
+          id: this.generateReceiptId(),
           name: String(parsed.name || ''),
           institution: String(parsed.institution || ''),
           medical: Boolean(parsed.medical),
@@ -101,7 +108,6 @@ class GeminiAPI {
       console.log('GeminiAPI: 受信したレスポンス:', text);
 
       try {
-        // レスポンスからJSONの配列部分を抽出
         const jsonMatch = text.match(/\[[\s\S]*\]/);
         if (!jsonMatch) {
           throw new Error('レスポンスにJSONの配列が含まれていません');
@@ -116,8 +122,9 @@ class GeminiAPI {
           throw new Error('パースされたJSONが配列ではありません');
         }
         
-        // 型の正規化
-        const normalizedResults = parsed.map((item: any) => ({
+        // 型の正規化（IDは保持）
+        const normalizedResults = parsed.map((item: any, index: number): MedicalReceipt => ({
+          id: data[index]?.id || this.generateReceiptId(),
           name: String(item.name || ''),
           institution: String(item.institution || ''),
           medical: Boolean(item.medical),

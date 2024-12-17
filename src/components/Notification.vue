@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { NotificationType } from '../types/MedicalReceipt';
+import { NotificationType } from '../types/Notification';
 
 interface Notification {
   id: number;
