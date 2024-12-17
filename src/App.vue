@@ -29,21 +29,32 @@ const handleAnalyze = async (files: File[]) => {
     isAnalyzing.value = true;
     showNotification('領収書の解析を開始します...', 'info');
     
-    const newResults: MedicalReceipt[] = [];
-    for (const file of files) {
-      const reader = new FileReader();
-      const imageData = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    // 各ファイルの処理を配列に格納
+    const processFile = async (file: File, index: number) => {
+      // インデックスに応じて遅延を追加（0.5秒ずつ）
+      await new Promise(resolve => setTimeout(resolve, index * 500));
+      
+      try {
+        const reader = new FileReader();
+        const imageData = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
 
-      const result = await geminiApi.analyzeReceipt(imageData);
-      newResults.push(result);
-    }
+        const result = await geminiApi.analyzeReceipt(imageData);
+        // 結果を直接resultsに追加
+        results.value = [...results.value, result];
+        showNotification(`${file.name}の解析が完了しました`, 'success');
+      } catch (error) {
+        showNotification(`${file.name}の解析に失敗しました: ${(error as Error).message}`, 'error');
+      }
+    };
+
+    // すべてのファイルを並行処理
+    await Promise.all(files.map((file, index) => processFile(file, index)));
     
-    results.value = [...results.value, ...newResults];
-    showNotification('領収書の解析が完了しました', 'success');
+    showNotification('すべての領収書の解析が完了しました', 'success');
   } catch (error) {
     showNotification((error as Error).message, 'error');
   } finally {
