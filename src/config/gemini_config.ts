@@ -41,7 +41,7 @@ Example Response:
 入力データは医療費の記録の配列です。以下の基準で整形を行い、整形後のデータを配列形式のJSONとして出力してください：
 
 整形基準：
-1. 日付を YYYY/MM/DD 形式に統一
+1. 日付を YYYY-MM-DD 形式に統一
 2. 同一人物の名前表記を統一（例:「山田花子」「山田花」「Yamada Hanako」→「山田花子」）
 3. 同一医療機関の表記を統一
 4. 明らかに誤っている年（1990年など）は近年の適切な年に修正
@@ -58,7 +58,7 @@ Example Response:
     "other": boolean,      // その他の費用の有無
     "payment": number,     // 合計支払額
     "refund": number,      // 保険等による補填額
-    "date": string        // 日付（YYYY/MM/DD形式）
+    "date": string        // 日付（YYYY-MM-DD形式）
   },
   ...
 ]

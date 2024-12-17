@@ -42,7 +42,7 @@
     <div class="process-content" v-if="selectedFiles.length > 0">
       <button 
         @click="startAnalysis" 
-        class="button analyze"
+        class="button primary-action"
         :class="{ 'analyzing': isAnalyzing }"
         :disabled="isAnalyzing"
       >
@@ -409,20 +409,56 @@ const stopPan = (event?: MouseEvent) => {
   border-top: 1px solid var(--border-color);
 }
 
-.button.analyze {
+.button.primary-action {
   padding: 1rem 2rem;
   font-size: 1rem;
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
 }
 
-.button.analyze i {
+.button.primary-action:hover {
+  opacity: 0.9;
+}
+
+.button.primary-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button.primary-action i {
   font-size: 1.2rem;
 }
 
-.button.analyze.analyzing {
-  opacity: 0.8;
+.button.primary-action.analyzing {
+  position: relative;
+  padding-left: 2.5rem;
+}
+
+.button.primary-action.analyzing::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
 }
 
 /* モーダルスタイル */
