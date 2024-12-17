@@ -27,7 +27,7 @@
                 type="text" 
                 v-model="result.name" 
                 class="editable-input"
-                @change="handleEdit(index)"
+                @change="handleEdit"
                 :disabled="isFormatting"
               >
             </td>
@@ -36,7 +36,7 @@
                 type="text" 
                 v-model="result.institution" 
                 class="editable-input"
-                @change="handleEdit(index)"
+                @change="handleEdit"
                 :disabled="isFormatting"
               >
             </td>
@@ -73,7 +73,7 @@
                 type="number" 
                 v-model.number="result.payment" 
                 class="editable-input number-input"
-                @change="handleEdit(index)"
+                @change="handleEdit"
                 :disabled="isFormatting"
               ><span>円</span>
             </td>
@@ -82,7 +82,7 @@
                 type="number" 
                 v-model.number="result.refund" 
                 class="editable-input number-input"
-                @change="handleEdit(index)"
+                @change="handleEdit"
                 :disabled="isFormatting"
               ><span>円</span>
             </td>
@@ -91,7 +91,7 @@
                 type="date" 
                 v-model="result.date"
                 class="editable-input date-input"
-                @change="handleEdit(index)"
+                @change="handleEdit"
                 :disabled="isFormatting"
               >
             </td>
@@ -127,7 +127,7 @@ const headerText = computed(() => {
 });
 
 // 編集処理
-const handleEdit = (index: number) => {
+const handleEdit = () => {
   showNotification('データを更新しました', 'success');
 };
 
@@ -135,7 +135,7 @@ const handleEdit = (index: number) => {
 const toggleCategory = (index: number, category: 'medical' | 'pharmacy' | 'nursing' | 'other') => {
   if (props.results[index]) {
     props.results[index][category] = !props.results[index][category];
-    handleEdit(index);
+    handleEdit();
   }
 };
 
@@ -152,26 +152,6 @@ const scrollToImage = (id: string) => {
       imageElement.classList.remove('highlighted');
     }, 3000);
   }
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return '';
-  // スラッシュ区切りの日付を'-'区切りに変換（input type="date"用）
-  return dateStr.replace(/\//g, '-');
-};
-
-// 日付をinput type="date"用にフォーマット（YYYY/MM/DD → YYYY-MM-DD）
-const formatDateForInput = (date: string) => {
-  if (!date) return '';
-  return date.replace(/\//g, '-');
-};
-
-// 日付入力処理
-const handleDateInput = (index: number, event: Event) => {
-  const input = event.target as HTMLInputElement;
-  // YYYY-MM-DD → YYYY/MM/DD に変換
-  props.results[index].date = input.value.replace(/-/g, '/');
-  handleEdit(index);
 };
 
 // Excel用のデータをコピー
