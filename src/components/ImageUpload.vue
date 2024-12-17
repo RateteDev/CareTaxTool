@@ -55,6 +55,14 @@
   <!-- イメージモーダル -->
   <div v-if="selectedImageIndex !== null" class="image-modal" @click="closeImageModal">
     <div class="modal-content" @click.stop>
+      <div class="rotate-controls">
+        <button @click.stop="rotateImage(-90)" class="rotate-button" title="左に90度回転">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button @click.stop="rotateImage(90)" class="rotate-button" title="右に90度回転">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
       <div 
         class="image-container"
         @mousedown.prevent="startPan"
@@ -184,10 +192,11 @@ const selectedImageIndex = ref<number | null>(null);
 const openImageModal = (index: number) => {
   selectedImageIndex.value = index;
   document.body.style.overflow = 'hidden';
-  // ズームとパンをリセット
+  // ズーム、パン、回転をリセット
   scale.value = 1;
   offsetX.value = 0;
   offsetY.value = 0;
+  rotation.value = 0;
 };
 
 const closeImageModal = () => {
@@ -209,10 +218,11 @@ const offsetY = ref(0);
 const isPanning = ref(false);
 const startX = ref(0);
 const startY = ref(0);
+const rotation = ref(0);
 
 // スタイルの計算
 const imageStyle = computed(() => ({
-  transform: `translate(${offsetX.value}px, ${offsetY.value}px) scale(${scale.value})`,
+  transform: `translate(${offsetX.value}px, ${offsetY.value}px) scale(${scale.value}) rotate(${rotation.value}deg)`,
   cursor: isPanning.value ? 'grabbing' : 'grab',
   transformOrigin: 'center'
 }));
@@ -279,6 +289,11 @@ const stopPan = (event?: MouseEvent) => {
   // イベントリスナーを削除
   document.removeEventListener('mousemove', pan);
   document.removeEventListener('mouseup', stopPan);
+};
+
+// 回転処理を追加
+const rotateImage = (degrees: number) => {
+  rotation.value = (rotation.value + degrees) % 360;
 };
 </script>
 
@@ -605,5 +620,39 @@ const stopPan = (event?: MouseEvent) => {
   text-align: center;
   font-size: 0.9rem;
   color: #666;
+}
+
+.rotate-controls {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+  padding: 0.5rem;
+  border-radius: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.rotate-button {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.rotate-button:hover {
+  opacity: 0.9;
 }
 </style> 
