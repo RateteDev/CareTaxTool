@@ -23,5 +23,7 @@ https://caretaxtool.ratete.dev
 
 ## 参考リンク
 
-- 国税庁 | 医療費集計フォームのダウンロードページ : <https://www.nta.go.jp/taxes/shiraberu/shinkoku/tokushu/keisubetsu/iryou-koujo.htm>
-- 国税庁 | 医療費控除を受ける方へ : <https://www.nta.go.jp/taxes/shiraberu/shinkoku/tokushu/keisubetsu/iryou-koujo.htm>
+- 国税庁 | 医療費集計フォームのダウンロードページ : 
+  <https://www.nta.go.jp/taxes/shiraberu/shinkoku/tokushu/keisubetsu/iryou-koujo.htm>
+- 国税庁 | 医療費控除を受ける方へ : 
+  <https://www.nta.go.jp/taxes/shiraberu/shinkoku/tokushu/keisubetsu/iryou-koujo.htm>
