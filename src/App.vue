@@ -1,10 +1,18 @@
 <template>
-  <div id="root">
+  <div class="app">
     <Header />
     <Notification />
-    <ConnectionSettings />
-    <ImageUpload @analyze="handleAnalyze" :isAnalyzing="isAnalyzing" />
-    <ResultTable :results="results" />
+    <main>
+      <ConnectionSettings />
+      <ImageUpload 
+        :is-analyzing="isAnalyzing"
+        @analyze="handleAnalyze"
+      />
+      <ResultTable 
+        :results="results"
+        :is-formatting="isFormatting"
+      />
+    </main>
   </div>
 </template>
 
@@ -21,45 +29,86 @@ import { MedicalReceipt } from './types/MedicalReceipt';
 
 const results = ref<MedicalReceipt[]>([]);
 const isAnalyzing = ref(false);
+const isFormatting = ref(false);
 
 const handleAnalyze = async (files: File[]) => {
   if (isAnalyzing.value) return;
   
   try {
     isAnalyzing.value = true;
+    results.value = [];
     showNotification('領収書の解析を開始します...', 'info');
     
-    // 各ファイルの処理を配列に格納
-    const processFile = async (file: File, index: number) => {
-      // インデックスに応じて遅延を追加（0.5秒ずつ）
-      await new Promise(resolve => setTimeout(resolve, index * 500));
-      
-      try {
-        const reader = new FileReader();
-        const imageData = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-
-        const result = await geminiApi.analyzeReceipt(imageData);
-        // IDを付与して結果を追加
-        result.id = String(index + 1).padStart(3, '0');
-        results.value = [...results.value, result];
-        showNotification(`${file.name}の解析が完了しました`, 'success');
-      } catch (error) {
-        showNotification(`${file.name}の解析に失敗しました: ${(error as Error).message}`, 'error');
-      }
-    };
-
-    // すべてのファイルを並行処理
-    await Promise.all(files.map((file, index) => processFile(file, index)));
+    // 画像を5枚ずつのグループに分割
+    const chunks = [];
+    for (let i = 0; i < files.length; i += 5) {
+      chunks.push(files.slice(i, i + 5));
+    }
     
-    showNotification('すべての領収書の解析が完了しました', 'success');
+    const allResults = [];
+    
+    // 各グループを0.3秒ずつずらして処理
+    for (let i = 0; i < chunks.length; i++) {
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, 300)); // 0.3秒待機
+      }
+      
+      // グループ内の画像を並列処理
+      const startIndex = i * 5;
+      const processPromises = chunks[i].map((file, index) => 
+        processFile(file, startIndex + index)
+      );
+      const chunkResults = await Promise.all(processPromises);
+      allResults.push(...chunkResults);
+    }
+    
+    // エラーのない結果のみを抽出
+    const validResults = allResults.filter(result => result !== null);
+    
+    // 結果を ID でソート
+    results.value = validResults.sort((a, b) => a.id.localeCompare(b.id));
+    
+    // すべての画像の処理が完了したら、データ整形を実行
+    if (results.value.length > 0) {
+      isFormatting.value = true;
+      showNotification('データの整形を開始します...', 'info');
+      const { results: formattedData, explanation } = await geminiApi.formatData(results.value);
+      results.value = formattedData;
+      
+      if (explanation) {
+        showNotification(explanation, 'info');
+      }
+      
+      showNotification('データの整形が完了しました', 'success');
+      isFormatting.value = false;
+    }
+    
+    showNotification('すべての処理が完了しました', 'success');
   } catch (error) {
     showNotification((error as Error).message, 'error');
   } finally {
     isAnalyzing.value = false;
+    isFormatting.value = false;
+  }
+};
+
+const processFile = async (file: File, index: number) => {
+  try {
+    const reader = new FileReader();
+    const imageData = await new Promise<string>((resolve, reject) => {
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const result = await geminiApi.analyzeReceipt(imageData);
+    // IDを付与
+    result.id = String(index + 1).padStart(3, '0');
+    showNotification(`${file.name}の解析が完了しました`, 'success');
+    return result;
+  } catch (error) {
+    showNotification(`${file.name}の解析に失敗しました: ${(error as Error).message}`, 'error');
+    return null;
   }
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
   <section class="result-section section-container" v-if="results.length > 0">
-    <h2>解析結果</h2>
+    <h2>{{ headerText }}</h2>
     <div class="result-table-wrapper">
       <table class="result-table">
         <thead>
@@ -22,120 +22,122 @@
             <td>
               <a href="#" class="id-link" @click.prevent="scrollToImage(result.id)">{{ result.id }}</a>
             </td>
-            <td>{{ result.name }}</td>
-            <td>{{ result.institution }}</td>
+            <td>
+              <input 
+                type="text" 
+                v-model="result.name" 
+                class="editable-input"
+                @change="handleEdit(index)"
+                :disabled="isFormatting"
+              >
+            </td>
+            <td>
+              <input 
+                type="text" 
+                v-model="result.institution" 
+                class="editable-input"
+                @change="handleEdit(index)"
+                :disabled="isFormatting"
+              >
+            </td>
             <td class="category-cell">
               <i 
-                :class="['fas', result.medical ? 'fa-check' : 'fa-times']"
+                :class="['fas', result.medical ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.medical ? 'var(--success-color)' : '#999' }"
+                @click="!isFormatting && toggleCategory(index, 'medical')"
               ></i>
             </td>
             <td class="category-cell">
               <i 
-                :class="['fas', result.pharmacy ? 'fa-check' : 'fa-times']"
+                :class="['fas', result.pharmacy ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.pharmacy ? 'var(--success-color)' : '#999' }"
+                @click="!isFormatting && toggleCategory(index, 'pharmacy')"
               ></i>
             </td>
             <td class="category-cell">
               <i 
-                :class="['fas', result.nursing ? 'fa-check' : 'fa-times']"
+                :class="['fas', result.nursing ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.nursing ? 'var(--success-color)' : '#999' }"
+                @click="!isFormatting && toggleCategory(index, 'nursing')"
               ></i>
             </td>
             <td class="category-cell">
               <i 
-                :class="['fas', result.other ? 'fa-check' : 'fa-times']"
+                :class="['fas', result.other ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.other ? 'var(--success-color)' : '#999' }"
+                @click="!isFormatting && toggleCategory(index, 'other')"
               ></i>
             </td>
-            <td>{{ formatNumber(result.payment) }}円</td>
-            <td>{{ formatNumber(result.refund) }}円</td>
-            <td>{{ formatDate(result.date) }}</td>
+            <td>
+              <input 
+                type="number" 
+                v-model.number="result.payment" 
+                class="editable-input number-input"
+                @change="handleEdit(index)"
+                :disabled="isFormatting"
+              ><span>円</span>
+            </td>
+            <td>
+              <input 
+                type="number" 
+                v-model.number="result.refund" 
+                class="editable-input number-input"
+                @change="handleEdit(index)"
+                :disabled="isFormatting"
+              ><span>円</span>
+            </td>
+            <td>
+              <input 
+                type="date" 
+                v-model="result.date"
+                class="editable-input date-input"
+                @change="handleEdit(index)"
+                :disabled="isFormatting"
+              >
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="button-group">
-      <button @click="formatData" class="format-button" :disabled="isFormatting">
-        <i class="fas fa-magic" v-if="!isFormatting"></i>
-        {{ isFormatting ? 'データ整形中...' : 'データを整形' }}
+      <button class="button primary-action" @click="copyToClipboard" :disabled="isFormatting">
+        <i class="far fa-copy"></i>
+        Excel用にコピー
       </button>
-    </div>
-  </section>
-
-  <section class="result-section section-container" v-if="formattedResults.length > 0">
-    <h2>整形結果</h2>
-    <div class="result-table-wrapper">
-      <table class="result-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>氏名</th>
-            <th>医療機関</th>
-            <th>診察・医療</th>
-            <th>医薬品購入</th>
-            <th>介護保険</th>
-            <th>その他</th>
-            <th>支払額</th>
-            <th>補填額</th>
-            <th>日付</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(result, index) in formattedResults" :key="index">
-            <td>{{ result.id }}</td>
-            <td>{{ result.name }}</td>
-            <td>{{ result.institution }}</td>
-            <td class="category-cell">
-              <i 
-                :class="['fas', result.medical ? 'fa-check' : 'fa-times']"
-                :style="{ color: result.medical ? 'var(--success-color)' : '#999' }"
-              ></i>
-            </td>
-            <td class="category-cell">
-              <i 
-                :class="['fas', result.pharmacy ? 'fa-check' : 'fa-times']"
-                :style="{ color: result.pharmacy ? 'var(--success-color)' : '#999' }"
-              ></i>
-            </td>
-            <td class="category-cell">
-              <i 
-                :class="['fas', result.nursing ? 'fa-check' : 'fa-times']"
-                :style="{ color: result.nursing ? 'var(--success-color)' : '#999' }"
-              ></i>
-            </td>
-            <td class="category-cell">
-              <i 
-                :class="['fas', result.other ? 'fa-check' : 'fa-times']"
-                :style="{ color: result.other ? 'var(--success-color)' : '#999' }"
-              ></i>
-            </td>
-            <td>{{ formatNumber(result.payment) }}円</td>
-            <td>{{ formatNumber(result.refund) }}円</td>
-            <td>{{ formatDate(result.date) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="button-group">
-      <button @click="copyAsJson" class="copy-button">JSONコピー</button>
-      <button @click="copyAsExcel" class="copy-button">Excel用コピー</button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import { defineProps, computed } from 'vue';
 import { showNotification } from '../utils/notification';
 import { MedicalReceipt } from '../types/MedicalReceipt';
-import { geminiApi } from '../utils/GeminiAPI';
 
 const props = defineProps<{
   results: MedicalReceipt[];
+  isFormatting?: boolean;
 }>();
 
-const isFormatting = ref(false);
-const formattedResults = ref<MedicalReceipt[]>([]);
+// 進捗状況に応じた見出しテキスト
+const headerText = computed(() => {
+  if (props.isFormatting) {
+    return 'データを整形中...';
+  }
+  return '解析結果';
+});
+
+// 編集処理
+const handleEdit = (index: number) => {
+  showNotification('データを更新しました', 'success');
+};
+
+// カテゴリーの切り替え
+const toggleCategory = (index: number, category: 'medical' | 'pharmacy' | 'nursing' | 'other') => {
+  if (props.results[index]) {
+    props.results[index][category] = !props.results[index][category];
+    handleEdit(index);
+  }
+};
 
 const scrollToImage = (id: string) => {
   document.querySelectorAll('.image-item').forEach(item => {
@@ -152,69 +154,52 @@ const scrollToImage = (id: string) => {
   }
 };
 
-const formatNumber = (value: number): string => {
-  return value.toLocaleString();
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  // スラッシュ区切りの日付を'-'区切りに変換（input type="date"用）
+  return dateStr.replace(/\//g, '-');
 };
 
-const formatDate = (date: string): string => {
+// 日付をinput type="date"用にフォーマット（YYYY/MM/DD → YYYY-MM-DD）
+const formatDateForInput = (date: string) => {
   if (!date) return '';
-  try {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}/${month}/${day}`;
-  } catch {
-    return date;
-  }
+  return date.replace(/\//g, '-');
 };
 
-const formatData = async () => {
-  if (isFormatting.value) return;
-  
-  try {
-    isFormatting.value = true;
-    showNotification('データの整形を開始します...', 'info');
-    
-    const { results, explanation } = await geminiApi.formatData(props.results);
-    formattedResults.value = results;
-    
-    if (explanation) {
-      showNotification(explanation, 'info');
-    }
-    
-    showNotification('データの整形が完了しました', 'success');
-  } catch (error) {
-    showNotification((error as Error).message, 'error');
-  } finally {
-    isFormatting.value = false;
-  }
+// 日付入力処理
+const handleDateInput = (index: number, event: Event) => {
+  const input = event.target as HTMLInputElement;
+  // YYYY-MM-DD → YYYY/MM/DD に変換
+  props.results[index].date = input.value.replace(/-/g, '/');
+  handleEdit(index);
 };
 
-const copyAsJson = () => {
-  const jsonString = JSON.stringify(formattedResults.value.length > 0 ? formattedResults.value : props.results, null, 2);
-  navigator.clipboard.writeText(jsonString)
-    .then(() => showNotification('JSONをクリップボードにコピーしました', 'success'))
-    .catch(() => showNotification('コピーに失敗しました', 'error'));
-};
+// Excel用のデータをコピー
+const copyToClipboard = () => {
+  // ヘータ行の作成（ヘッダーなし、ID列なし）
+  const rows = props.results.map(result => [
+    result.name, // 医療を受けた人
+    result.institution, // 病院・薬局などの名称
+    result.medical ? '該当する' : '', // 診療・治療
+    result.pharmacy ? '該当する' : '', // 医薬品購入
+    result.nursing ? '該当する' : '', // 介護保険サービス
+    result.other ? '該当する' : '', // その他の医療費
+    String(result.payment).padStart(9, ' '), // 支払った医療費の金額（半角数字9桁以内）
+    String(result.refund).padStart(9, ' '), // 補填される金額（半角数字9桁以内）
+    result.date // 支払年月日
+  ]);
 
-const copyAsExcel = () => {
-  const targetResults = formattedResults.value.length > 0 ? formattedResults.value : props.results;
-  const rows = targetResults.map(result => [
-    result.name,
-    result.institution,
-    result.medical ? '該当する' : '',
-    result.pharmacy ? '該当する' : '',
-    result.nursing ? '該当する' : '',
-    result.other ? '該当する' : '',
-    result.payment ? result.payment.toString() : '',
-    result.refund ? result.refund.toString() : '',
-    result.date
-  ].join('\t'));
+  // タブ区切りのテキストを作成（ヘッダーなし）
+  const tsv = rows.map(row => row.join('\t')).join('\n');
 
-  navigator.clipboard.writeText(rows.join('\n'))
-    .then(() => showNotification('Excel用データをクリップボードにコピーしました', 'success'))
-    .catch(() => showNotification('コピーに失敗しました', 'error'));
+  // クリップボードにコピー
+  navigator.clipboard.writeText(tsv)
+    .then(() => {
+      showNotification('Excel用にデータをコピーしました', 'success');
+    })
+    .catch(() => {
+      showNotification('データのコピーに失敗しました', 'error');
+    });
 };
 </script>
 
@@ -233,7 +218,7 @@ const copyAsExcel = () => {
 .result-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px;
+  min-width: auto;
 }
 
 .result-table th,
@@ -241,6 +226,10 @@ const copyAsExcel = () => {
   padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
+  height: 24px;
+  line-height: 24px;
+  vertical-align: middle;
+  position: relative;
 }
 
 .result-table th {
@@ -248,6 +237,7 @@ const copyAsExcel = () => {
   font-weight: 500;
   color: #666;
   white-space: nowrap;
+  text-align: center;
 }
 
 .result-table tr:hover {
@@ -256,61 +246,58 @@ const copyAsExcel = () => {
 
 .category-cell {
   text-align: center;
+  width: 70px;
+  position: relative;
 }
 
 .category-cell i {
-  font-size: 1.1rem;
+  font-size: 1rem;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
 }
 
 .button-group {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin: 1rem;
-  padding-top: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
   border-top: 1px solid var(--border-color);
 }
 
-.copy-button {
-  padding: 0.5rem 1rem;
+.button.primary-action {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 2rem;
   cursor: pointer;
-  font-size: 0.9rem;
   transition: opacity 0.2s ease;
 }
 
-.copy-button:hover {
+.button.primary-action:hover {
   opacity: 0.9;
 }
 
-.format-button {
-  padding: 0.75rem 1.5rem;
-  background-color: #6c5ce7;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: opacity 0.2s ease;
-}
-
-.format-button:hover {
-  opacity: 0.9;
-}
-
-.format-button:disabled {
+.button.primary-action:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.format-button i {
-  font-size: 1rem;
+.button.primary-action i {
+  font-size: 1.2rem;
 }
 
 .id-link {
@@ -318,9 +305,164 @@ const copyAsExcel = () => {
   text-decoration: none;
   cursor: pointer;
   font-weight: 500;
+  display: block;
+  text-align: center;
 }
 
 .id-link:hover {
   text-decoration: underline;
+}
+
+.editable-input {
+  width: 100%;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  font-size: inherit;
+  color: inherit;
+  font-family: inherit;
+  height: 24px;
+  line-height: 24px;
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  margin: 0;
+}
+
+.editable-input:hover {
+  border-color: var(--border-color);
+  background-color: white;
+}
+
+.editable-input:focus {
+  border-color: var(--primary-color);
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.number-input {
+  width: 55px;
+  text-align: right;
+  padding-right: 2px;
+  right: 1.5rem;
+  left: auto;
+  -moz-appearance: textfield;
+}
+
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.date-input {
+  width: 95px;
+  text-align: center;
+  padding: 0;
+  cursor: pointer;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+}
+
+.date-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.date-input::-webkit-clear-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, margin 0.2s ease;
+}
+
+.clickable:hover {
+  transform: scale(1.2) translate(-8px, -8px);
+}
+
+/* カテゴリー列のスタイル */
+td:nth-child(4),
+td:nth-child(5),
+td:nth-child(6),
+td:nth-child(7) {
+  text-align: center;
+}
+
+/* 支払額と補填額のセルのスタイル */
+td:nth-child(8),
+td:nth-child(9) {
+  position: relative;
+  white-space: nowrap;
+  width: 80px;
+  text-align: right;
+}
+
+td:nth-child(8) span,
+td:nth-child(9) span {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 医療機関名のセルの幅を固定 */
+td:nth-child(3) {
+  width: 220px;
+  text-align: left;
+}
+
+/* ID列の幅を固定 */
+td:nth-child(1) {
+  width: 50px;
+  text-align: center;
+}
+
+/* 氏名列の幅を固定 */
+td:nth-child(2) {
+  width: 100px;
+  text-align: center;
+}
+
+/* 日付列の幅を固定 */
+td:nth-child(10) {
+  width: 95px;
+  text-align: center;
+  position: relative;
+}
+
+.editable-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+/* データ整形中は hover 効果を無効化 */
+tr:has(.editable-input:disabled) .clickable {
+  cursor: not-allowed;
+  transform: none;
+}
+
+tr:has(.editable-input:disabled) .clickable:hover {
+  transform: none;
 }
 </style> 

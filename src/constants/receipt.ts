@@ -9,5 +9,5 @@ export const RECEIPT_CONSTANTS = {
     PAD_LENGTH: 3,
     PREFIX: 'receipt-'
   },
-  DATE_FORMAT: 'YYYY/MM/DD'
+  DATE_FORMAT: 'YYYY-MM-DD'
 } as const; 

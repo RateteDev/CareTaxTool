@@ -19,27 +19,32 @@
       <div class="setting-item">
         <label for="api-key">API Key:</label>
         <div class="input-group">
-          <input 
-            :type="showApiKey ? 'text' : 'password'" 
-            id="api-key" 
-            v-model="apiKey" 
-            placeholder="API Keyを入力してください"
-            autocomplete="off"
-            @paste="handleApiKeyPaste"
-          >
-          <button 
-            class="button icon-button"
-            @click="toggleApiKeyVisibility"
-            :title="showApiKey ? '非表示' : '表示'"
-          >
-            <i :class="showApiKey ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-          </button>
-          <button 
-            @click="updateApiKey" 
-            class="button"
-            :disabled="!apiKey"
-          >更新</button>
+          <div class="input-wrapper">
+            <input 
+              :type="showApiKey ? 'text' : 'password'" 
+              id="api-key" 
+              v-model="apiKey" 
+              placeholder="API Keyを入力してください"
+              autocomplete="off"
+              @paste="handleApiKeyPaste"
+            >
+            <button 
+              class="visibility-toggle"
+              @click="toggleApiKeyVisibility"
+              :title="showApiKey ? '非表示' : '表示'"
+              type="button"
+            >
+              <i :class="showApiKey ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
         </div>
+      </div>
+      <div class="button-group">
+        <button 
+          @click="updateApiKey" 
+          class="button primary-action"
+          :disabled="!apiKey"
+        >更新</button>
       </div>
     </div>
   </div>
@@ -85,7 +90,7 @@ const updateModel = () => {
   console.log('ConnectionSettings: モデル名を更新します:', modelName.value);
   localStorage.setItem('modelName', modelName.value);
   geminiApi.setModelName(modelName.value);
-  showNotification('モデル名を更新しました', 'success');
+  showNotification('接続先設定を更新しました', 'success');
 };
 
 const updateApiKey = () => {
@@ -99,7 +104,7 @@ const updateApiKey = () => {
   localStorage.setItem('lastUpdated', new Date().toLocaleString('ja-JP'));
   lastUpdated.value = new Date().toLocaleString('ja-JP');
   geminiApi.setApiKey(apiKey.value);
-  showNotification('API Keyを更新しました', 'success');
+  showNotification('接続先設定を更新しました', 'success');
   
   // セキュリティのため、更新後は非表示に戻す
   showApiKey.value = false;
@@ -125,131 +130,137 @@ const handleApiKeyPaste = (event: ClipboardEvent) => {
 .settings-group {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .setting-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem;
 }
 
 .setting-item label {
-  color: var(--text-color);
+  flex: 0 0 100px;
+  text-align: right;
+  color: #666;
   font-size: 0.9rem;
-  font-weight: 500;
 }
 
 .input-group {
+  flex: 1;
   display: flex;
   gap: 0.5rem;
+  max-width: 400px;
+}
+
+.input-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.5rem;
+  padding-right: 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  background-color: white;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.input-wrapper input:hover {
+  border-color: var(--primary-color);
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.visibility-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  height: 24px;
+}
+
+.visibility-toggle:hover {
+  color: var(--primary-color);
 }
 
 .model-select {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: 4px;
   background-color: white;
   color: var(--text-color);
   font-size: 0.9rem;
-  transition: border-color 0.2s ease;
-  height: 2.75rem;
-  box-sizing: border-box;
   cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.762L10.825 4z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  padding-right: 2.5rem;
-}
-
-.model-select:focus {
-  outline: none;
-  border-color: var(--primary-color);
 }
 
 .model-select:hover {
   border-color: var(--primary-color);
 }
 
-input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  background-color: white;
-  color: var(--text-color);
-  font-size: 0.9rem;
-  transition: border-color 0.2s ease;
-  height: 2.75rem;
-  box-sizing: border-box;
+.button-group {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
-input::placeholder {
-  color: #999;
-}
-
-.button {
-  padding: 0.75rem 1rem;
+.button.primary-action {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 2rem;
   cursor: pointer;
-  font-size: 0.9rem;
-  min-width: 60px;
-  transition: background-color 0.2s ease;
-  height: 2.75rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
 }
 
-.button:disabled {
+.button.primary-action:hover {
+  opacity: 0.9;
+}
+
+.button.primary-action:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.button:not(:disabled):hover {
-  opacity: 0.9;
+.button.primary-action i {
+  font-size: 1.2rem;
 }
 
-.icon-button {
-  padding: 0.5rem;
-  min-width: 2.75rem;
-  background-color: #6c757d;
-  height: 2.75rem;
-}
-
-input[type="checkbox"] {
-  margin: 0;
-  width: 16px;
-  height: 16px;
-}
-
-.help-text {
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.25rem;
-}
-
-.debug-info {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: #666;
+h2 {
+  font-size: 1.1rem;
+  margin: 0 0 1.5rem 0;
+  padding: 0;
+  color: var(--text-color);
+  font-weight: 500;
+  text-align: center;
 }
 </style> 
