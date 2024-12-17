@@ -43,7 +43,8 @@ const handleAnalyze = async (files: File[]) => {
         });
 
         const result = await geminiApi.analyzeReceipt(imageData);
-        // 結果を直接resultsに追加
+        // IDを付与して結果を追加
+        result.id = String(index + 1).padStart(3, '0');
         results.value = [...results.value, result];
         showNotification(`${file.name}の解析が完了しました`, 'success');
       } catch (error) {
