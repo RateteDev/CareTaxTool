@@ -23,72 +23,72 @@
               <a href="#" class="id-link" @click.prevent="scrollToImage(result.id)">{{ result.id }}</a>
             </td>
             <td>
-              <input 
-                type="text" 
-                v-model="result.name" 
+              <input
+                type="text"
+                v-model="result.name"
                 class="editable-input"
                 @change="handleEdit"
                 :disabled="isFormatting"
               >
             </td>
             <td>
-              <input 
-                type="text" 
-                v-model="result.institution" 
+              <input
+                type="text"
+                v-model="result.institution"
                 class="editable-input"
                 @change="handleEdit"
                 :disabled="isFormatting"
               >
             </td>
             <td class="category-cell">
-              <i 
+              <i
                 :class="['fas', result.medical ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.medical ? 'var(--success-color)' : '#999' }"
                 @click="!isFormatting && toggleCategory(index, 'medical')"
               ></i>
             </td>
             <td class="category-cell">
-              <i 
+              <i
                 :class="['fas', result.pharmacy ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.pharmacy ? 'var(--success-color)' : '#999' }"
                 @click="!isFormatting && toggleCategory(index, 'pharmacy')"
               ></i>
             </td>
             <td class="category-cell">
-              <i 
+              <i
                 :class="['fas', result.nursing ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.nursing ? 'var(--success-color)' : '#999' }"
                 @click="!isFormatting && toggleCategory(index, 'nursing')"
               ></i>
             </td>
             <td class="category-cell">
-              <i 
+              <i
                 :class="['fas', result.other ? 'fa-check' : 'fa-times', 'clickable']"
                 :style="{ color: result.other ? 'var(--success-color)' : '#999' }"
                 @click="!isFormatting && toggleCategory(index, 'other')"
               ></i>
             </td>
             <td>
-              <input 
-                type="number" 
-                v-model.number="result.payment" 
+              <input
+                type="number"
+                v-model.number="result.payment"
                 class="editable-input number-input"
                 @change="handleEdit"
                 :disabled="isFormatting"
               ><span>円</span>
             </td>
             <td>
-              <input 
-                type="number" 
-                v-model.number="result.refund" 
+              <input
+                type="number"
+                v-model.number="result.refund"
                 class="editable-input number-input"
                 @change="handleEdit"
                 :disabled="isFormatting"
               ><span>円</span>
             </td>
             <td>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 v-model="result.date"
                 class="editable-input date-input"
                 @change="handleEdit"
@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed } from 'vue';
+import { computed } from 'vue';
 import { showNotification } from '../utils/notification';
 import { MedicalReceipt } from '../types/MedicalReceipt';
 
@@ -445,4 +445,4 @@ tr:has(.editable-input:disabled) .clickable {
 tr:has(.editable-input:disabled) .clickable:hover {
   transform: none;
 }
-</style> 
+</style>
