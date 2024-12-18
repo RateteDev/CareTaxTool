@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits, defineProps, onBeforeUnmount, watch, computed } from 'vue';
+import { ref, onBeforeUnmount, watch, computed } from 'vue';
 import { showNotification } from '../utils/notification';
 import { RECEIPT_CONSTANTS } from '../constants/receipt';
 
