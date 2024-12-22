@@ -2,6 +2,8 @@
 
 医療費控除申請のための領収書解析ツール
 
+![demo](./README/demo.mp4)
+
 ## ツールページ
 
 https://caretaxtool.ratete.dev
