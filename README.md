@@ -2,7 +2,7 @@
 
 医療費控除申請のための領収書解析ツール
 
-![demo](./README/demo.mp4)
+https://github.com/user-attachments/assets/c8e6b665-ceaa-450e-a68b-b31fef743e43
 
 ## ツールページ
 
